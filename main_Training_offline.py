@@ -5,25 +5,14 @@ import torch
 import torch.nn as nn
 import yaml
 
-from Networks.DNN_GADOAE_FiLM_multistage import DNN_GADOAE_FiLM_multistage
-from Networks.DNN_GADOAE_FiLM_conv import DNN_GADOAE_FiLM_conv
-from Networks.DNN_GADOAE_conv_res_FiLM import DNN_GADOAE_conv_res_FiLM
-from Networks.DNN_GADOAE_conv_res_FiLM_phase import DNN_GADOAE_conv_res_FiLM_phase
-from Networks.DNN_GADOAE_conv_res_FiLM_nonredunant import DNN_GADOAE_conv_res_FiLM_nonredundant
-# from torch.utils.tensorboard import SummaryWriter
-from Networks.DNN_GADOAE_max import DNN_GADOAE_max
-from Networks.DNN_GADOAE_full import DNN_GADOAE_full
-from Networks.DNN_GADOAE_parallel import DNN_GADOAE_parallel
-from Networks.DNN_GADOAE_phase import DNN_GADOAE_phase
-from Networks.DNN_GADOAE_conv import DNN_GADOAE_conv
-from Core.Timer import Timer
-from Dataset.Dataset_Training_offline import Dataset_Training_offline
-from Core.Training import Training
-from Core.Training_GADOAE_parallel import Training_GADOAE_parallel
+from GazeData import GazeData
+from Timer import Timer
+from easyCNN_01 import easyCNN_01
+from Training import Training
 
 # writer = SummaryWriter("runs/gcc")
 
-with open('config_training_offline.yml') as config:
+with open('config_training.yml') as config:
     configuration = yaml.safe_load(config)
 
 training_parameters = configuration['training_parameters']
@@ -67,41 +56,9 @@ if __name__ == '__main__':
 
         if configuration['is_training']:
 
-            dataset = Dataset_Training_offline(dataset=training_parameters['dataset'], device=device)
+            dataset = GazeData(directory=training_parameters['dataset'], device=device)
 
-            if training_parameters['network'] == 'GADOAE_max':
-                dnn = DNN_GADOAE_max(length_input_layer=dataset.get_length_feature(),
-                                     length_output_layer=dataset.get_num_classes())
-            elif training_parameters['network'] == 'GADOAE_full':
-                dnn = DNN_GADOAE_full(length_input_layer=dataset.get_length_feature(),
-                                      length_output_layer=dataset.get_num_classes())
-            elif training_parameters['network'] == 'GADOAE_phase':
-                dnn = DNN_GADOAE_phase(length_input_layer=dataset.get_length_feature(),
-                                       length_output_layer=dataset.get_num_classes())
-            elif training_parameters['network'] == 'GADOAE_conv':
-                dnn = DNN_GADOAE_conv(length_input_layer=dataset.get_length_feature(),
-                                      length_output_layer=dataset.get_num_classes())
-            elif training_parameters['network'] == 'GADOAE_FiLM_redundant':
-                dnn = DNN_GADOAE_conv_res_FiLM(length_input_layer=dataset.get_length_feature(),
-                                      length_output_layer=dataset.get_num_classes())
-            elif training_parameters['network'] == 'GADOAE_FiLM_nonredundant':
-                dnn = DNN_GADOAE_conv_res_FiLM_nonredundant(length_input_layer=dataset.get_length_feature(),
-                                      length_output_layer=dataset.get_num_classes())
-            elif training_parameters['network'] == 'GADOAE_FiLM_phase':
-                dnn = DNN_GADOAE_conv_res_FiLM_phase(length_input_layer=dataset.get_length_feature(),
-                                      length_output_layer=dataset.get_num_classes())
-            elif training_parameters['network'] == 'GADOAE_parallel':
-                dnn = DNN_GADOAE_parallel(length_input_layer=dataset.get_length_feature(),
-                                          length_output_layer=dataset.get_num_classes(),
-                                          num_channels=training_parameters['num_channels'],
-                                          device=device)
-            elif training_parameters['network'] == 'GADOAE_FiLM':
-                dnn = DNN_GADOAE_FiLM_conv(length_input_layer=dataset.get_length_feature(),
-                                      length_output_layer=dataset.get_num_classes())
-            else:
-                dataset = None
-                dnn = None
-                raise ('Unknown network configuration: ', configuration['network'])
+            dnn = easyCNN_01()
 
             optimiser = torch.optim.Adam(dnn.parameters(), lr=configuration['LEARNING_RATE'])
 
@@ -116,24 +73,14 @@ if __name__ == '__main__':
 
             loss_fn = nn.CrossEntropyLoss()
 
-            if training_parameters['network'] == 'GADOAE_parallel':
-                Trainer = Training_GADOAE_parallel(model=dnn, loss_fn=loss_fn,
-                                                   optimiser=optimiser,
-                                                   dataset=dataset,
-                                                   batch_size=configuration['BATCH_SIZE'],
-                                                   ratio=configuration['RATIO'],
-                                                   device=device,
-                                                   filename=trained_net,
-                                                   num_workers=configuration['NUM_WORKERS'])
-            else:
-                Trainer = Training(model=dnn, loss_fn=loss_fn,
-                                   optimiser=optimiser,
-                                   dataset=dataset,
-                                   batch_size=configuration['BATCH_SIZE'],
-                                   ratio=configuration['RATIO'],
-                                   device=device,
-                                   filename=trained_net,
-                                   num_workers=configuration['NUM_WORKERS'])
+            Trainer = Training(model=dnn, loss_fn=loss_fn,
+                               optimiser=optimiser,
+                               dataset=dataset,
+                               batch_size=configuration['BATCH_SIZE'],
+                               ratio=configuration['RATIO'],
+                               device=device,
+                               filename=trained_net,
+                               num_workers=configuration['NUM_WORKERS'])
 
             with Timer("Training online"):
                 # train model

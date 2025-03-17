@@ -88,9 +88,15 @@ class Training:
         list_signal_type = []
         list_ir_type = []
 
-        for bulk_sample, bulk_target in self.train_data_loader:
+        for bulk_sample, bulk_target, bulk_rotation, bulk_elevation, bulk_tilt in self.train_data_loader:
 
-            sample, label = bulk_sample.to(self.device), bulk_target.to(self.device)
+            sample, label, rotation, elevation, tilt = (bulk_sample.to(self.device), bulk_target.to(self.device), 
+                                                        bulk_rotation.to(self.device), bulk_elevation.to(self.device),
+                                                        bulk_tilt.to(self.device))
+
+            print(bulk_sample.shape, bulk_target.shape)
+
+
             num_frames = int(sample.shape[0] * sample.shape[1])
             sample_reshaped = torch.zeros(size=(num_frames, sample.shape[2]), device=self.device)
             label_reshaped = torch.zeros(size=(num_frames, self.num_classes), device=self.device, dtype=torch.float32)
