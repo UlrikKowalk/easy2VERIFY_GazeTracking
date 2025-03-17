@@ -1,0 +1,11 @@
+
+save_result: True
+BATCH_SIZE: 1
+NUM_WORKERS: 1
+
+simulation_parameters:
+  network: easyCNN
+  model: Trained/easyCNN_01.pth
+  base_dir: ''
+  dataset: '../easy2VERIFY_Dataset'
+  

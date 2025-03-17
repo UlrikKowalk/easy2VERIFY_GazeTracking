@@ -1,0 +1,15 @@
+
+is_training: True
+is_continuing: False
+
+BATCH_SIZE: 32
+NUM_WORKERS: 1
+EPOCHS: 3
+LEARNING_RATE: 0.0001
+RATIO: 0.8
+
+training_parameters:
+  seed: 42
+  network: easyCNN
+  model: 'easyCNN_01'
+  dataset: '../easy2VERIFY_Dataset/'
