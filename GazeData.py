@@ -1,5 +1,8 @@
 
 from pathlib import Path
+
+import numpy as np
+import torch
 from torch.utils.data import Dataset
 import pandas as pd
 import cv2
@@ -35,10 +38,12 @@ class GazeData(Dataset):
 
         directory = self.dataframe['directory'][index]
         filename = self.dataframe['filename'][index]
-        image = cv2.imread(f'{directory}/{filename}')
-        target = self.dataframe['target'][index]
+        image = cv2.imread(f'{directory}/{filename}', cv2.IMREAD_GRAYSCALE).astype(np.float32)
+        target = self.dataframe['target'][index].astype(np.float32)
         head_rotation = self.dataframe['head_rotation'][index]
         head_elevation = self.dataframe['head_elevation'][index]
         head_tilt = self.dataframe['head_tilt'][index]
 
-        return image, target, head_rotation, head_elevation, head_tilt
+        head_position = torch.tensor([head_rotation, head_elevation, head_tilt], dtype=torch.float32)
+
+        return image, target, head_position

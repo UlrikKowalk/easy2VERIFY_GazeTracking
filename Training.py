@@ -20,7 +20,6 @@ class Training:
         self.optimiser = optimiser
         self.device = device
         self.filename = filename
-        self.num_classes = dataset.get_num_classes()
 
         n_total = len(dataset)
         n_train = int(n_total * ratio)
@@ -45,22 +44,12 @@ class Training:
         loss_list = []
         loss_val_list = []
 
-        list_snr = []
-        list_rt_60 = []
-        list_signal_type = []
-        list_ir_type = []
-
         for i in range(epochs):
             print(f"Epoch {i + 1}/{epochs}")
 
             # Train
-            loss, rt_60, snr, signal_type, ir_type = self.train_single_epoch()
+            loss = self.train_single_epoch()
             loss_list.append(loss)
-
-            list_rt_60.extend(rt_60)
-            list_snr.extend(snr)
-            list_signal_type.extend(signal_type)
-            list_ir_type.extend(ir_type)
 
             # Validate
             loss_val = self.validate_single_epoch()
@@ -78,45 +67,26 @@ class Training:
             print("---------------------------")
         print("Finished training")
 
-        return loss_list, loss_val_list, list_rt_60, list_snr, list_signal_type, list_ir_type
+        return loss_list, loss_val_list
 
     def train_single_epoch(self):
 
         losses = []
-        list_rt_60 = []
-        list_snr = []
-        list_signal_type = []
-        list_ir_type = []
 
-        for bulk_sample, bulk_target, bulk_rotation, bulk_elevation, bulk_tilt in self.train_data_loader:
+        for bulk_sample, bulk_target, bulk_head_position in self.train_data_loader:
 
-            sample, label, rotation, elevation, tilt = (bulk_sample.to(self.device), bulk_target.to(self.device), 
-                                                        bulk_rotation.to(self.device), bulk_elevation.to(self.device),
-                                                        bulk_tilt.to(self.device))
-
-            print(bulk_sample.shape, bulk_target.shape)
-
-
-            num_frames = int(sample.shape[0] * sample.shape[1])
-            sample_reshaped = torch.zeros(size=(num_frames, sample.shape[2]), device=self.device)
-            label_reshaped = torch.zeros(size=(num_frames, self.num_classes), device=self.device, dtype=torch.float32)
-
-            idx = 0
-            for frame, tmp_label in zip(sample, label):
-
-                frames_per_sample = 1#label.shape[1]
-                sample_reshaped[int(idx*frames_per_sample):int((idx+1)*frames_per_sample), :] = frame
-                label_reshaped[int(idx*frames_per_sample):int((idx+1)*frames_per_sample), :] = \
-                    torch.nn.functional.one_hot(tmp_label.long(), num_classes=self.num_classes)
-
-                idx += 1
+            bulk_sample = torch.unsqueeze(bulk_sample, dim=1)
+            bulk_target = torch.unsqueeze(bulk_target, dim=1)
+            # bulk_head_position = torch.unsqueeze(bulk_head_position, dim=1)
+            sample, target, head_position = (bulk_sample.to(self.device), bulk_target.to(self.device),
+                                                        bulk_head_position.to(self.device))
 
             self.optimiser.zero_grad()
 
-            prediction = self.model(sample_reshaped)
+            prediction = self.model(sample, head_position)
 
             # calculate loss
-            loss = self.loss_fn(prediction, label_reshaped)
+            loss = self.loss_fn(prediction, target)
             losses.append(loss.item())
 
             # backpropagate error and update weights
@@ -125,34 +95,25 @@ class Training:
 
         loss = np.mean(np.array(losses))
         print(f"loss: {loss.item()}")
-        return loss.item(), list_rt_60, list_snr, list_signal_type, list_ir_type
+        return loss.item()
 
     def validate_single_epoch(self):
 
         losses = []
-        for bulk_sample, bulk_target in self.val_data_loader:
+        for bulk_sample, bulk_target, bulk_head_position in self.train_data_loader:
 
-            sample, label = bulk_sample.to(self.device), bulk_target.to(self.device)
-            num_frames = int(sample.shape[0] * sample.shape[1])
-            sample_reshaped = torch.zeros(size=(num_frames, sample.shape[2]), device=self.device)
-            label_reshaped = torch.zeros(size=(num_frames, self.num_classes), device=self.device,
-                                         dtype=torch.float32)
-
-            idx = 0
-            for frame, tmp_label in zip(sample, label):
-                frames_per_sample = 1#label.shape[1]
-                sample_reshaped[int(idx * frames_per_sample):int((idx + 1) * frames_per_sample), :] = frame
-                label_reshaped[int(idx * frames_per_sample):int((idx + 1) * frames_per_sample), :] = \
-                    torch.nn.functional.one_hot(tmp_label.long(), num_classes=self.num_classes)
-
-                idx += 1
+            bulk_sample = torch.unsqueeze(bulk_sample, dim=1)
+            bulk_target = torch.unsqueeze(bulk_target, dim=1)
+            # bulk_head_position = torch.unsqueeze(bulk_head_position, dim=1)
+            sample, target, head_position = (bulk_sample.to(self.device), bulk_target.to(self.device),
+                                            bulk_head_position.to(self.device))
 
             self.model.eval()
             with torch.no_grad():
                 # evaluate
-                prediction = self.model(sample_reshaped)
+                prediction = self.model(sample, head_position)
                 # calculate loss
-                loss = self.loss_fn(prediction, label_reshaped)
+                loss = self.loss_fn(prediction, target)
 
         print(f"val:  {loss.item()}")
         return loss.item()

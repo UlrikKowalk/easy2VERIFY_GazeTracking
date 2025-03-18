@@ -51,7 +51,7 @@ if __name__ == '__main__':
             device = 'cuda'
         else:
             device = "cpu"
-        trained_net = f'{training_parameters["base_dir"]}/Trained_16k/{training_parameters["model"]}'
+        trained_net = f'{training_parameters["base_dir"]}/Trained/{training_parameters["model"]}'
         print(f"Using device '{device}'.")
 
         if configuration['is_training']:
@@ -71,7 +71,7 @@ if __name__ == '__main__':
             dnn.to(device)
             optimizer_to(optimiser, device)
 
-            loss_fn = nn.CrossEntropyLoss()
+            loss_fn = nn.MSELoss()
 
             Trainer = Training(model=dnn, loss_fn=loss_fn,
                                optimiser=optimiser,
