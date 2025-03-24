@@ -20,7 +20,8 @@ class GazeData(Dataset):
                         'target': [],
                         'head_rotation': [],
                         'head_elevation': [],
-                        'head_tilt': []
+                        'head_roll': [],
+                        'face_distance': []
         }))
 
         for path in Path(self.directory).rglob('*.csv'):
@@ -42,8 +43,9 @@ class GazeData(Dataset):
         target = self.dataframe['target'][index].astype(np.float32)
         head_rotation = self.dataframe['head_rotation'][index]
         head_elevation = self.dataframe['head_elevation'][index]
-        head_tilt = self.dataframe['head_tilt'][index]
+        head_roll = self.dataframe['head_roll'][index]
+        head_distance = self.dataframe['face_distance'][index]
 
-        head_position = torch.tensor([head_rotation, head_elevation, head_tilt], dtype=torch.float32)
+        head_position = torch.tensor([head_rotation, head_elevation, head_roll, head_distance], dtype=torch.float32)
 
         return image, target, head_position

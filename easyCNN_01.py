@@ -54,7 +54,7 @@ class easyCNN_01(nn.Module):
         )
 
         self.FiLM0 = nn.Sequential(
-            nn.Linear(in_features=3, out_features=2*128),
+            nn.Linear(in_features=4, out_features=2*128),
             nn.Dropout(p=0.5),
             nn.LeakyReLU()
         )
@@ -87,14 +87,14 @@ class easyCNN_01(nn.Module):
         x = self.flatten0(x)
         x = self.linear0(x)
 
-        # calculate FiLM
+        # calculate FiLM layers
         m = self.FiLM0(metadata)
         m = self.FiLM1(m)
         m = self.FiLM2(m)
         alpha = m[:, :128]
         beta = m[:, 128:]
 
-        # FiLM
+        # conduct FiLM
         x = alpha * x + beta
 
         x = self.linear1(x)

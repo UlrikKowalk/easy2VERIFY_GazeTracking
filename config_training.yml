@@ -12,4 +12,4 @@ training_parameters:
   seed: 42
   network: easyCNN
   model: 'easyCNN_01'
-  dataset: 'd:/easy2VERIFY_Dataset/'
+  dataset: '../easy2VERIFY_Dataset/'
