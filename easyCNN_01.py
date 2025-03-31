@@ -38,19 +38,19 @@ class easyCNN_01(nn.Module):
 
         # 80 -> 128
         self.linear0 = nn.Sequential(
-            nn.Linear(in_features=94*194, out_features=128),
+            nn.Linear(in_features=94*194, out_features=1024),
             nn.Dropout(p=0.5),
             nn.Sigmoid()
         )
         # 128 -> 128
         self.linear1 = nn.Sequential(
-            nn.Linear(in_features=128, out_features=128),
+            nn.Linear(in_features=1024, out_features=512),
             nn.Dropout(p=0.5),
             nn.Sigmoid()
         )
         # 128 -> 72
         self.linear2 = nn.Linear(
-            in_features=128, out_features=1
+            in_features=512, out_features=1
         )
 
         self.FiLM0 = nn.Sequential(
@@ -59,17 +59,16 @@ class easyCNN_01(nn.Module):
             nn.LeakyReLU()
         )
         self.FiLM1 = nn.Sequential(
-            nn.Linear(in_features=2*128, out_features=2 * 128),
+            nn.Linear(in_features=2*128, out_features=2 * 256),
             nn.Dropout(p=0.5),
             nn.LeakyReLU()
         )
         self.FiLM2 = nn.Sequential(
-            nn.Linear(in_features=2 * 128, out_features=2 * 128),
+            nn.Linear(in_features=2 * 256, out_features=2 * 1024),
             nn.Dropout(p=0.5),
             nn.LeakyReLU()
         )
 
-        # 512 -> 512
         self.act = nn.LeakyReLU()
 
         self.softmax = nn.Softmax(dim=1)
@@ -91,8 +90,8 @@ class easyCNN_01(nn.Module):
         m = self.FiLM0(metadata)
         m = self.FiLM1(m)
         m = self.FiLM2(m)
-        alpha = m[:, :128]
-        beta = m[:, 128:]
+        alpha = m[:, :1024]
+        beta = m[:, 1024:]
 
         # conduct FiLM
         x = alpha * x + beta

@@ -1,5 +1,4 @@
 import time
-
 import yaml
 import torch
 from easyCNN_01 import easyCNN_01
@@ -11,6 +10,7 @@ from PySide6 import QtCore
 from PySide6 import QtWidgets
 from PySide6 import QtGui
 import numpy as np
+import matplotlib.pyplot as plt
 
 with open('config_testing.yml') as config:
     configuration = yaml.safe_load(config)
@@ -110,6 +110,18 @@ class GazeLive(QtWidgets.QMainWindow):
         trained_net = f'{simulation_parameters["model"]}'
         print(f"Using device '{self.device}'.")
 
+        # draw mask to focus on eye -> dimensions are known
+        width = 100
+        height = 100
+        center = [50, 50]
+        radius = 49
+        self.mask = np.zeros(shape=(height, width), dtype=np.uint8)
+        for row in range(height):
+            for col in range(width):
+                if np.sqrt((center[0]-row)**2 + (center[1]-col)**2) <= radius:
+                    self.mask[row, col] = 1.0
+        self.mask = np.tile(A=self.mask, reps=(1, 2))
+
         # load model and push it to device
         map_location = torch.device(self.device)
         sd = torch.load(trained_net, map_location=map_location, weights_only=True)
@@ -151,8 +163,6 @@ class GazeLive(QtWidgets.QMainWindow):
             # duration = time.time() - self.start_time
             # self.start_time = time.time()
 
-
-
             if self.is_first:
                 self.face_mapping.first(cv_img)
             try:
@@ -191,11 +201,16 @@ class GazeLive(QtWidgets.QMainWindow):
                                         dtype=torch.float32, device=self.device)
                 img_concat = cv2.hconcat([cv_img[left_left:left_left + left_height, left_top:left_top + left_width, :],
                                           cv_img[right_left:right_left + right_height, right_top:right_top + right_width, :]])
+
                 # factor by which to rescale
                 scaling_factor = 200.0 / img_concat.shape[1]
                 img_scaled = cv2.resize(img_concat, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
                 img_scaled = torch.tensor(img_scaled, device=self.device, dtype=torch.float32)
                 img_scaled = torch.mean(img_scaled, dim=-1)
+                # execute mask
+                img_scaled *= self.mask
+                plt.imshow(img_scaled)
+                plt.show()
                 img_scaled = torch.unsqueeze(img_scaled, dim=0)
                 img_scaled = torch.unsqueeze(img_scaled, dim=0)
                 metadata = torch.unsqueeze(metadata, dim=0)
