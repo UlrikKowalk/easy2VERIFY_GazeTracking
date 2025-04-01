@@ -81,6 +81,9 @@ if __name__ == '__main__':
     list_predictions = []
     list_targets = []
     list_head_rotation = []
+    list_head_elevation = []
+    list_head_roll = []
+    list_face_distance = []
     list_error = []
 
     test_data_loader = DataLoader(dataset=dataset,
@@ -108,7 +111,10 @@ if __name__ == '__main__':
 
         list_predictions.append(predicted[0].cpu().detach().numpy())
         list_targets.append(target[0].cpu().detach().numpy())
-        list_head_rotation.append(metadata[0].cpu().detach().numpy())
+        list_head_rotation.append(metadata[0, 0].cpu().detach().numpy())
+        list_head_elevation.append(metadata[0, 1].cpu().detach().numpy())
+        list_head_roll.append(metadata[0, 2].cpu().detach().numpy())
+        list_face_distance.append(metadata[0, 3].cpu().detach().numpy())
 
         # list_error.append(Evaluation.angular_error(expected, predicted,
         #                 dataset.get_num_classes()) / dataset.get_num_classes() * dataset.get_max_theta())
@@ -132,6 +138,9 @@ if __name__ == '__main__':
     plt.plot(list_predictions)
     plt.plot(list_targets)
     plt.plot(list_head_rotation)
+    plt.plot(list_head_elevation)
+    plt.plot(list_head_roll)
+    plt.plot(list_face_distance)
     plt.show()
 
     # MAE_CNN = np.mean(list_error)

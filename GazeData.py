@@ -56,7 +56,7 @@ class GazeData(Dataset):
         head_rotation = self.dataframe['head_rotation'][index]
         head_elevation = self.dataframe['head_elevation'][index]
         head_roll = self.dataframe['head_roll'][index]
-        head_distance = self.dataframe['face_distance'][index]
+        face_distance = self.dataframe['face_distance'][index]
 
         # split eyes and execute mask
         image_left = image[:, :self.width] * self.mask
@@ -65,11 +65,12 @@ class GazeData(Dataset):
         image_left = image_left[20:-20, 20:-20]
         image_right = image_right[20:-20, 20:-20]
 
-        head_rotation = (head_rotation + 50) / 100
-        head_elevation = (head_elevation + 50) / 100
-        head_roll = (head_roll + 50) / 100
+        head_rotation = (head_rotation + 90) / 180
+        head_elevation = (head_elevation + 90) / 180
+        head_roll = (head_roll + 90) / 180
+        face_distance /= 150
 
-        head_position = torch.tensor([head_rotation, head_elevation, head_roll, head_distance], dtype=torch.float32)
+        head_position = torch.tensor([head_rotation, head_elevation, head_roll, face_distance], dtype=torch.float32)
 
         #condition target values to be on interval [0,1]
         target = torch.tensor((target + torch.pi) / (2*torch.pi), dtype=torch.float32)
