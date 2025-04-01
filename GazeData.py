@@ -36,7 +36,7 @@ class GazeData(Dataset):
 
         # draw mask to focus on eye -> dimensions are known
         center = [int(self.width/2), int(self.height/2)]
-        radius = int(self.width/2) - 1
+        radius = int(self.width/2) - 20
         self.mask = np.zeros(shape=(self.height, self.width), dtype=np.float32)
         for row in range(self.height):
             for col in range(self.width):
@@ -61,6 +61,9 @@ class GazeData(Dataset):
         # split eyes and execute mask
         image_left = image[:, :self.width] * self.mask
         image_right = image[:, self.width:] * self.mask
+
+        image_left = image_left[20:-20, 20:-20]
+        image_right = image_right[20:-20, 20:-20]
 
         head_position = torch.tensor([head_rotation, head_elevation, head_roll, head_distance], dtype=torch.float32)
 

@@ -173,7 +173,7 @@ class GazeLive(QtWidgets.QMainWindow):
         width = 100
         height = 100
         center = [50, 50]
-        radius = 49
+        radius = 30
         self.mask = np.zeros(shape=(height, width), dtype=np.uint8)
         for row in range(height):
             for col in range(width):
@@ -295,10 +295,13 @@ class GazeLive(QtWidgets.QMainWindow):
                 img_scaled = torch.mean(img_scaled, dim=-1)
                 # execute mask
                 img_scaled *= self.mask
-                # plt.imshow(img_scaled)
-                # plt.show()
+                plt.imshow(img_scaled)
+                plt.show()
                 image_left = img_scaled[:, :100]
                 image_right = img_scaled[:, 100:]
+
+                image_left = image_left[20:-20, 20:-20]
+                image_right = image_right[20:-20, 20:-20]
 
                 image_left = torch.unsqueeze(image_left, dim=0)
                 image_left = torch.unsqueeze(image_left, dim=0)
