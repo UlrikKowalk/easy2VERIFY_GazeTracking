@@ -295,8 +295,8 @@ class GazeLive(QtWidgets.QMainWindow):
                 img_scaled = torch.mean(img_scaled, dim=-1)
                 # execute mask
                 img_scaled *= self.mask
-                plt.imshow(img_scaled)
-                plt.show()
+                # plt.imshow(img_scaled)
+                # plt.show()
                 image_left = img_scaled[:, :100]
                 image_right = img_scaled[:, 100:]
 
@@ -311,7 +311,8 @@ class GazeLive(QtWidgets.QMainWindow):
 
                 # result should (!) be -45°...+45° in radian
                 result = self.dnn.forward(image_left, image_right, metadata)
-                led_pos = int((result + 45/180*np.pi) / (np.pi/2) * self.num_leds)
+                # led_pos = int((result + 45/180*np.pi) / (np.pi/2) * self.num_leds) #Tanh
+                led_pos = int((result + 1) * self.num_leds) #Sigmoid
                 # led_pos = int((metadata[0, 0]*2+45)/90 * self.num_leds)
 
                 # sig = [' '*int((result.cpu().detach().numpy()+0.25)*4*30)+'|'+' '*int((0.5-result.cpu().detach().numpy()+0.25)*4*30)]

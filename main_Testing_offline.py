@@ -8,7 +8,6 @@ import yaml
 import numpy as np
 import pandas as pd
 import torch.nn
-import torchaudio
 from matplotlib import pyplot as plt
 from torch.utils.data import DataLoader
 
@@ -18,15 +17,12 @@ from easyCNN_01 import easyCNN_01
 from Core.Timer import Timer
 from random import Random
 
-with open('config_testing_offline.yml') as config:
+with open('config_testing.yml') as config:
     configuration = yaml.safe_load(config)
 
 save_result = configuration['save_result']
-# evaluation_parameters = configuration['evaluation_parameters']
 simulation_parameters = configuration['simulation_parameters']
 simulation_parameters['base_dir'] = os.getcwd()
-# simulation_parameters['noise_sampled_dir'] = '../NoiseLibrary/noise_sampled_05'
-# simulation_parameters['mic_array'] = './array_viwers_05.mat'
 
 
 def boolean_string(s):
@@ -61,7 +57,7 @@ if __name__ == '__main__':
     trained_net = f'{simulation_parameters["base_dir"]}/{simulation_parameters["model"]}'
     print(f"Using device '{device}'.")
 
-    dataset = GazeData(directory=simulation_parameters["directory"], device=device)
+    dataset = GazeData(directory=simulation_parameters["dataset"], device=device)
 
     dnn = easyCNN_01()
 
@@ -70,6 +66,17 @@ if __name__ == '__main__':
     sd = torch.load(trained_net, map_location=map_location, weights_only=True)
     dnn.load_state_dict(sd)
     dnn.to(device)
+
+    # draw mask to focus on eye -> dimensions are known
+    width = 60
+    height = 60
+    center = [30, 30]
+    radius = 30
+    mask = np.zeros(shape=(height, width), dtype=np.uint8)
+    for row in range(height):
+        for col in range(width):
+            if np.sqrt((center[0] - row) ** 2 + (center[1] - col) ** 2) <= radius:
+                mask[row, col] = 1.0
 
     list_predictions = []
     list_targets = []
@@ -85,21 +92,24 @@ if __name__ == '__main__':
     num_zeros = int(np.ceil(np.log10(len(dataset))) + 1)
     #with Timer('test_signals'):
 
-    for feature, target, metadata in test_data_loader:
+    for image_left, image_right, target, metadata in test_data_loader:
+
+        image_left = torch.unsqueeze(image_left, dim=0)
+        image_right = torch.unsqueeze(image_right, dim=0)
 
         # load features to inference device (cpu/cuda)
-        feature = feature.to(device)
+        image_left = image_left.to(device)
+        image_right = image_right.to(device)
         # load metadata to inference device (cpu/cuda)
         metadata = metadata.to(device)
 
-        predicted, _ = Evaluation.estimate_easyCNN(model=dnn, feature=feature, metadata=metadata)
-        expected = int(target)
+        predicted = dnn.forward(image_left, image_right, metadata)
 
-        list_predictions.append(predicted)
-        list_targets.append(expected)
+        list_predictions.append(predicted[0].cpu().detach().numpy())
+        list_targets.append(target[0].cpu().detach().numpy())
 
-        list_error.append(Evaluation.angular_error(expected, predicted,
-                        dataset.get_num_classes()) / dataset.get_num_classes() * dataset.get_max_theta())
+        # list_error.append(Evaluation.angular_error(expected, predicted,
+        #                 dataset.get_num_classes()) / dataset.get_num_classes() * dataset.get_max_theta())
 
         sys.stdout.write("\r{0}>".format("=" * round(50*idx/len(dataset))))
         sys.stdout.flush()
@@ -116,6 +126,10 @@ if __name__ == '__main__':
         df.to_csv(
             path_or_buf="easyTest.csv",
             index=False)
+
+    plt.plot(list_predictions)
+    plt.plot(list_targets)
+    plt.show()
 
     MAE_CNN = np.mean(list_error)
     acc_model = Evaluation.calculate_accuracy(df, simulation_parameters[

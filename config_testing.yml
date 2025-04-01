@@ -7,5 +7,5 @@ simulation_parameters:
   network: easyCNN
   model: Trained/easyCNN_01.pth
   base_dir: ''
-  dataset: '../easy2VERIFY_Dataset'
+  dataset: '../easy2VERIFY_Dataset/85717a6b-5301-42c0-9265-c4ac04485bbb'
   
