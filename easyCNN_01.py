@@ -3,7 +3,7 @@ from torch import nn
 import torch
 
 
-LATENT_CHANNELS = 16
+LATENT_CHANNELS = 2
 
 class easyCNN_01(nn.Module):
 
@@ -43,34 +43,34 @@ class easyCNN_01(nn.Module):
         self.linear0 = nn.Sequential(
             nn.Linear(in_features=LATENT_CHANNELS*48*48, out_features=128),
             nn.Dropout(p=0.5),
-            nn.Tanh()
+            nn.Sigmoid()
         )
         # 128 -> 128
         self.linear1 = nn.Sequential(
             nn.Linear(in_features=128, out_features=128),
             nn.Dropout(p=0.5),
-            nn.Tanh()
+            nn.Sigmoid()
         )
         # 128 -> 72
         self.linear2 = nn.Linear(
             in_features=128, out_features=1
         )
 
-        self.FiLM0 = nn.Sequential(
-            nn.Linear(in_features=4, out_features=2*128),
-            nn.Dropout(p=0.5),
-            nn.LeakyReLU()
-        )
-        self.FiLM1 = nn.Sequential(
-            nn.Linear(in_features=2*128, out_features=2*128),
-            nn.Dropout(p=0.5),
-            nn.LeakyReLU()
-        )
-        self.FiLM2 = nn.Sequential(
-            nn.Linear(in_features=2*128, out_features=2*128),
-            nn.Dropout(p=0.5),
-            nn.LeakyReLU()
-        )
+        # self.FiLM0 = nn.Sequential(
+        #     nn.Linear(in_features=4, out_features=2*128),
+        #     nn.Dropout(p=0.5),
+        #     nn.LeakyReLU()
+        # )
+        # self.FiLM1 = nn.Sequential(
+        #     nn.Linear(in_features=2*128, out_features=2*128),
+        #     nn.Dropout(p=0.5),
+        #     nn.LeakyReLU()
+        # )
+        # self.FiLM2 = nn.Sequential(
+        #     nn.Linear(in_features=2*128, out_features=2*128),
+        #     nn.Dropout(p=0.5),
+        #     nn.LeakyReLU()
+        # )
 
         # 512 -> 512
         self.act = nn.LeakyReLU()
