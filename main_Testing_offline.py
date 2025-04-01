@@ -80,6 +80,7 @@ if __name__ == '__main__':
 
     list_predictions = []
     list_targets = []
+    list_head_rotation = []
     list_error = []
 
     test_data_loader = DataLoader(dataset=dataset,
@@ -107,6 +108,7 @@ if __name__ == '__main__':
 
         list_predictions.append(predicted[0].cpu().detach().numpy())
         list_targets.append(target[0].cpu().detach().numpy())
+        list_head_rotation.append(metadata[0].cpu().detach().numpy())
 
         # list_error.append(Evaluation.angular_error(expected, predicted,
         #                 dataset.get_num_classes()) / dataset.get_num_classes() * dataset.get_max_theta())
@@ -129,6 +131,7 @@ if __name__ == '__main__':
 
     plt.plot(list_predictions)
     plt.plot(list_targets)
+    plt.plot(list_head_rotation)
     plt.show()
 
     # MAE_CNN = np.mean(list_error)
