@@ -11,5 +11,5 @@ RATIO: 0.8
 training_parameters:
   seed: 42
   network: easyCNN
-  model: 'easyCNN_01'
+  model: 'easyCNN_01.pth'
   dataset: '../easy2VERIFY_Dataset/'

@@ -149,6 +149,9 @@ class GazeLive(QtWidgets.QMainWindow):
         self.is_blink = False
         self.is_recording = True
 
+    def closeEvent(self, event):
+        print('Closing.')
+
     @QtCore.Slot(np.ndarray, int, float)
     def new_frame_available(self, cv_img, cam_id, fps):
 
@@ -209,13 +212,19 @@ class GazeLive(QtWidgets.QMainWindow):
                 img_scaled = torch.mean(img_scaled, dim=-1)
                 # execute mask
                 img_scaled *= self.mask
-                plt.imshow(img_scaled)
-                plt.show()
-                img_scaled = torch.unsqueeze(img_scaled, dim=0)
-                img_scaled = torch.unsqueeze(img_scaled, dim=0)
+                # plt.imshow(img_scaled)
+                # plt.show()
+                image_left = img_scaled[:, :100]
+                image_right = img_scaled[:, 100:]
+
+                image_left = torch.unsqueeze(image_left, dim=0)
+                image_left = torch.unsqueeze(image_left, dim=0)
+                image_right = torch.unsqueeze(image_right, dim=0)
+                image_right = torch.unsqueeze(image_right, dim=0)
                 metadata = torch.unsqueeze(metadata, dim=0)
-                result = self.dnn.forward(img_scaled, metadata)
-                sig = ['.'*int((result.cpu().detach().numpy()+0.25)*4*40)+'|'+'.'*int((0.5-result.cpu().detach().numpy()+0.25)*4*40)]
+
+                result = self.dnn.forward(image_left, image_right, metadata)
+                sig = [' '*int((result.cpu().detach().numpy()+0.25)*4*30)+'|'+' '*int((0.5-result.cpu().detach().numpy()+0.25)*4*30)]
                 print(sig)
 
                 # increase frame counter by 1
