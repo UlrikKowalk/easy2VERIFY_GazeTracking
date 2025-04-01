@@ -73,17 +73,20 @@ class Training:
 
         losses = []
 
-        for bulk_sample, bulk_target, bulk_head_position in self.train_data_loader:
+        for bulk_image_left, bulk_image_right, bulk_target, bulk_head_position in self.train_data_loader:
 
-            bulk_sample = torch.unsqueeze(bulk_sample, dim=1)
+            bulk_image_left = torch.unsqueeze(bulk_image_left, dim=1)
+            bulk_image_right = torch.unsqueeze(bulk_image_right, dim=1)
             bulk_target = torch.unsqueeze(bulk_target, dim=1)
             # bulk_head_position = torch.unsqueeze(bulk_head_position, dim=1)
-            sample, target, head_position = (bulk_sample.to(self.device), bulk_target.to(self.device),
-                                                        bulk_head_position.to(self.device))
+            image_left, image_right, target, head_position = (bulk_image_left.to(self.device),
+                                                              bulk_image_right.to(self.device),
+                                                              bulk_target.to(self.device),
+                                                              bulk_head_position.to(self.device))
 
             self.optimiser.zero_grad()
 
-            prediction = self.model(sample, head_position)
+            prediction = self.model(image_left, image_right, head_position)
 
             # calculate loss
             loss = self.loss_fn(prediction, target)
@@ -99,19 +102,20 @@ class Training:
 
     def validate_single_epoch(self):
 
-        losses = []
-        for bulk_sample, bulk_target, bulk_head_position in self.train_data_loader:
-
-            bulk_sample = torch.unsqueeze(bulk_sample, dim=1)
+        for bulk_image_left, bulk_image_right, bulk_target, bulk_head_position in self.train_data_loader:
+            bulk_image_left = torch.unsqueeze(bulk_image_left, dim=1)
+            bulk_image_right = torch.unsqueeze(bulk_image_right, dim=1)
             bulk_target = torch.unsqueeze(bulk_target, dim=1)
             # bulk_head_position = torch.unsqueeze(bulk_head_position, dim=1)
-            sample, target, head_position = (bulk_sample.to(self.device), bulk_target.to(self.device),
-                                            bulk_head_position.to(self.device))
+            image_left, image_right, target, head_position = (bulk_image_left.to(self.device),
+                                                              bulk_image_right.to(self.device),
+                                                              bulk_target.to(self.device),
+                                                              bulk_head_position.to(self.device))
 
             self.model.eval()
             with torch.no_grad():
                 # evaluate
-                prediction = self.model(sample, head_position)
+                prediction = self.model(image_left, image_right, head_position)
                 # calculate loss
                 loss = self.loss_fn(prediction, target)
 
