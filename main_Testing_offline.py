@@ -131,10 +131,10 @@ if __name__ == '__main__':
     plt.plot(list_targets)
     plt.show()
 
-    MAE_CNN = np.mean(list_error)
-    acc_model = Evaluation.calculate_accuracy(df, simulation_parameters[
-        'num_classes'])
-    print(f"DNN: MAE: {MAE_CNN} [{np.median(list_error)}], Accuracy: {acc_model}")
-
-    Evaluation.plot_error(df=df, num_classes=dataset.get_num_classes())
+    # MAE_CNN = np.mean(list_error)
+    # acc_model = Evaluation.calculate_accuracy(df, simulation_parameters[
+    #     'num_classes'])
+    # print(f"DNN: MAE: {MAE_CNN} [{np.median(list_error)}], Accuracy: {acc_model}")
+    #
+    # Evaluation.plot_error(df=df, num_classes=dataset.get_num_classes())
     print("done.")

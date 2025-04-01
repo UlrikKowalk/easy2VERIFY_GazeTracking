@@ -3,7 +3,7 @@ from torch import nn
 import torch
 
 
-LATENT_CHANNELS = 2
+LATENT_CHANNELS = 4
 
 class easyCNN_01(nn.Module):
 
@@ -56,21 +56,21 @@ class easyCNN_01(nn.Module):
             in_features=128, out_features=1
         )
 
-        # self.FiLM0 = nn.Sequential(
-        #     nn.Linear(in_features=4, out_features=2*128),
-        #     nn.Dropout(p=0.5),
-        #     nn.LeakyReLU()
-        # )
-        # self.FiLM1 = nn.Sequential(
-        #     nn.Linear(in_features=2*128, out_features=2*128),
-        #     nn.Dropout(p=0.5),
-        #     nn.LeakyReLU()
-        # )
-        # self.FiLM2 = nn.Sequential(
-        #     nn.Linear(in_features=2*128, out_features=2*128),
-        #     nn.Dropout(p=0.5),
-        #     nn.LeakyReLU()
-        # )
+        self.FiLM0 = nn.Sequential(
+            nn.Linear(in_features=4, out_features=2*128),
+            nn.Dropout(p=0.5),
+            nn.LeakyReLU()
+        )
+        self.FiLM1 = nn.Sequential(
+            nn.Linear(in_features=2*128, out_features=2*128),
+            nn.Dropout(p=0.5),
+            nn.LeakyReLU()
+        )
+        self.FiLM2 = nn.Sequential(
+            nn.Linear(in_features=2*128, out_features=2*128),
+            nn.Dropout(p=0.5),
+            nn.LeakyReLU()
+        )
 
         # 512 -> 512
         self.act = nn.LeakyReLU()
@@ -94,14 +94,14 @@ class easyCNN_01(nn.Module):
         x = self.linear0(x)
 
         # calculate FiLM layers
-        # m = self.FiLM0(metadata)
-        # m = self.FiLM1(m)
-        # m = self.FiLM2(m)
-        # alpha = m[:, :128]
-        # beta = m[:, 128:]
+        m = self.FiLM0(metadata)
+        m = self.FiLM1(m)
+        m = self.FiLM2(m)
+        alpha = m[:, :128]
+        beta = m[:, 128:]
 
         # conduct FiLM
-        # x = alpha * x + beta
+        x = alpha * x + beta
 
         x = self.linear1(x)
         predictions = self.linear2(x)
