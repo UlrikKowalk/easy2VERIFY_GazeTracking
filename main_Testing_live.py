@@ -10,6 +10,9 @@ from PySide6 import QtCore
 from PySide6 import QtWidgets
 from PySide6 import QtGui
 import numpy as np
+import os
+import serial
+import serial.tools.list_ports
 import matplotlib.pyplot as plt
 
 with open('config_testing.yml') as config:
@@ -86,6 +89,56 @@ class VideoInputThread(QtCore.QThread):
                 time.sleep((1.0 / self.fps) - ((time.time() - start_time) % (1.0 / self.fps)))
             print('Video thread stopped.')
 
+class ArduinoThread(QtCore.QThread):
+    arduino_connect = QtCore.Signal()
+    arduino_disconnect = QtCore.Signal()
+
+    def __init__(self, num_leds, port='COM3'):
+        super().__init__()
+        self.wait_interval = 0.02
+        self.port = port
+        self.arduino = serial.Serial(port=self.port, baudrate=9600, timeout=.1)
+        self.is_running = True
+        self.num_leds = num_leds
+        self.led_pos = int((self.num_leds+1)/2)
+        self.is_ready = False
+        time.sleep(2)
+
+    def run(self):
+        print('Starting Arduino thread.')
+
+        while self.is_running:
+
+            if self.is_ready and not os.path.exists(self.port):
+                self.arduino_disconnect.emit()
+                self.is_ready = False
+            elif not self.is_ready and os.path.exists(self.port):
+                if self.arduino.readline().decode().strip() == "READY":
+                    self.arduino_connect.emit()
+                    self.is_ready = True
+
+            self.arduino.write(f'{self.led_pos}.\n'.encode('utf-8'))
+            time.sleep(self.wait_interval)
+
+
+        print('Arduino thread stopped.')
+
+    def set_data(self, led_pos):
+        self.led_pos = int(led_pos)
+        # print(f'received new led: {self.led_pos}')
+
+    def stop(self):
+        self.is_running = False
+        self.arduino.write(f'{-255}.\n'.encode('utf-8'))
+        time.sleep(1)
+        self.arduino.close()
+
+    def clear_leds(self):
+        self.led_pos = -255
+
+    def get_ready(self):
+        return self.is_ready
+
 class GazeLive(QtWidgets.QMainWindow):
 
     def __init__(self):
@@ -101,6 +154,12 @@ class GazeLive(QtWidgets.QMainWindow):
         self.iris_l = [0, 0]
         self.iris_r = [0, 0]
         self.rec_factor = 0.95  # used to smoothen data
+
+        self.is_arduino_ready = False
+        self.num_leds = 237
+        tmp_scaling_factor = 60 / self.num_leds
+        self.min_angle = -45
+        self.max_angle = 45
 
         if torch.cuda.is_available():
             self.device = 'cuda'
@@ -136,6 +195,15 @@ class GazeLive(QtWidgets.QMainWindow):
         self.head_roll_cam = 0
         self.face_distance = 1.0
 
+        # create Aruidno thread for led display
+        try:
+            self.arduino_thread = ArduinoThread(self.num_leds, port="COM5")
+            self.arduino_thread.arduino_connect.connect(self.arduino_connect)
+            self.arduino_thread.arduino_disconnect.connect(self.arduino_disconnect)
+            self.arduino_thread.start()
+        except:
+            print('No Arduino device found.')
+
         self.cam_in_use = 0
         # create a separate video thread for each camera
         self.video_thread = VideoInputThread(0)
@@ -149,8 +217,23 @@ class GazeLive(QtWidgets.QMainWindow):
         self.is_blink = False
         self.is_recording = True
 
+    def __del__(self):
+        print('Stopping threads.')
+        self.arduino_thread.stop()
+        self.video_thread.stop()
+
     def closeEvent(self, event):
-        print('Closing.')
+        self.__del__()
+
+    @QtCore.Slot()
+    def arduino_connect(self):
+        print('Arduino connected.')
+        self.is_arduino_ready = True
+
+    @QtCore.Slot()
+    def arduino_disconnect(self):
+        print('Arduino was disconnected.')
+        self.is_arduino_ready = False
 
     @QtCore.Slot(np.ndarray, int, float)
     def new_frame_available(self, cv_img, cam_id, fps):
@@ -223,9 +306,16 @@ class GazeLive(QtWidgets.QMainWindow):
                 image_right = torch.unsqueeze(image_right, dim=0)
                 metadata = torch.unsqueeze(metadata, dim=0)
 
+                # result should (!) be -45°...+45° in radian
                 result = self.dnn.forward(image_left, image_right, metadata)
-                sig = [' '*int((result.cpu().detach().numpy()+0.25)*4*30)+'|'+' '*int((0.5-result.cpu().detach().numpy()+0.25)*4*30)]
-                print(sig)
+                led_pos = int((result + 45/180*np.pi) / (np.pi/2) * self.num_leds)
+                # led_pos = int((metadata[0, 0]*2+45)/90 * self.num_leds)
+
+                # sig = [' '*int((result.cpu().detach().numpy()+0.25)*4*30)+'|'+' '*int((0.5-result.cpu().detach().numpy()+0.25)*4*30)]
+                # print(sig)
+                # print(result)
+                # led_pos = result*
+                self.arduino_thread.set_data(led_pos=led_pos)
 
                 # increase frame counter by 1
                 # self.frame_idx += 1
