@@ -94,14 +94,14 @@ class easyCNN_01(nn.Module):
         x = self.linear0(x)
 
         # calculate FiLM layers
-        m = self.FiLM0(metadata)
-        m = self.FiLM1(m)
-        m = self.FiLM2(m)
-        alpha = m[:, :128]
-        beta = m[:, 128:]
+        # m = self.FiLM0(metadata)
+        # m = self.FiLM1(m)
+        # m = self.FiLM2(m)
+        # alpha = m[:, :128]
+        # beta = m[:, 128:]
 
         # conduct FiLM
-        x = alpha * x + beta
+        # x = alpha * x + beta
 
         x = self.linear1(x)
         predictions = self.linear2(x)
