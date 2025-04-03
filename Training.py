@@ -84,6 +84,7 @@ class Training:
                                                               target.to(self.device),
                                                               metadata.to(self.device))
 
+            self.model.train()
             self.optimiser.zero_grad()
 
             prediction = self.model(image_left, image_right, metadata)
