@@ -99,7 +99,7 @@ class easyCNN_01(nn.Module):
 
         x = self.linear0(x)
 
-        # calculate FiLM layers
+        # # calculate FiLM layers
         # m = self.FiLM0(metadata)
         # m = self.FiLM1(m)
         # m = self.FiLM2(m)
