@@ -13,35 +13,37 @@ class easyCNN_01(nn.Module):
         self.norm = nn.GroupNorm(num_groups=2, num_channels=2)
 
         self.conv0 = nn.Sequential(
-            # 2@60x60 -> 16@56x56
+            # 2@60x60 -> 16@28x28
             nn.Conv2d(in_channels=2, out_channels=LATENT_CHANNELS, kernel_size=(5, 5),  stride=(1, 1), padding=(0, 0)),
             nn.BatchNorm2d(LATENT_CHANNELS),
+            nn.MaxPool2d(2),
             nn.Dropout2d(0.5),
             nn.LeakyReLU()
         )
 
         self.conv1 = nn.Sequential(
-            # 16@56x56 -> 16@54x54
+            # 16@28x28 -> 16@13x13
             nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0)),
             nn.BatchNorm2d(LATENT_CHANNELS),
+            nn.MaxPool2d(2),
             nn.Dropout2d(0.5),
             nn.LeakyReLU()
         )
 
         self.conv2 = nn.Sequential(
-            # 16@54x54 -> 16@52x52
+            # 16@13x13 -> 16@11x11
             nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0)),
             nn.BatchNorm2d(LATENT_CHANNELS),
             nn.Dropout2d(0.5),
             nn.LeakyReLU()
         )
 
-        # 16@52x52-> 16*52*52 = 141376
+        # 16@11x11-> 16*11*11 = 141376
         self.flatten0 = nn.Flatten()
 
         # 141376 -> 128
         self.linear0 = nn.Sequential(
-            nn.Linear(in_features=LATENT_CHANNELS*52*52, out_features=128),
+            nn.Linear(in_features=LATENT_CHANNELS*11*11, out_features=128),
             nn.Dropout(p=0.5),
             nn.Tanh()
         )
