@@ -16,7 +16,7 @@ class easyCNN_01(nn.Module):
             # 2@60x60 -> 16@28x28
             nn.Conv2d(in_channels=2, out_channels=LATENT_CHANNELS, kernel_size=(5, 5),  stride=(1, 1), padding=(0, 0)),
             nn.BatchNorm2d(LATENT_CHANNELS),
-            nn.MaxPool2d(2),
+            nn.AvgPool2d(2),
             nn.Dropout2d(0.5),
             nn.LeakyReLU()
         )
@@ -25,7 +25,7 @@ class easyCNN_01(nn.Module):
             # 16@28x28 -> 16@13x13
             nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0)),
             nn.BatchNorm2d(LATENT_CHANNELS),
-            nn.MaxPool2d(2),
+            nn.AvgPool2d(2),
             nn.Dropout2d(0.5),
             nn.LeakyReLU()
         )
