@@ -51,8 +51,14 @@ class easyCNN_01(nn.Module):
             nn.Dropout(p=0.5),
             nn.Sigmoid()
         )
+        # 128 -> 128
+        self.linear2 = nn.Sequential(
+            nn.Linear(in_features=128, out_features=128),
+            nn.Dropout(p=0.5),
+            nn.Sigmoid()
+        )
         # 128 -> 72
-        self.linear2 = nn.Linear(
+        self.linear3 = nn.Linear(
             in_features=128, out_features=1
         )
 
@@ -104,7 +110,8 @@ class easyCNN_01(nn.Module):
         x = alpha * x + beta
 
         x = self.linear1(x)
-        predictions = self.linear2(x)
+        x = self.linear2(x)
+        predictions = self.linear3(x)
 
         # predictions = self.softmax(predictions)
 
