@@ -113,7 +113,7 @@ class easyCNN_01(nn.Module):
         # conduct FiLM
         x = alpha * x + beta
 
-        x = self.GRU(x)
+        (x, _) = self.GRU(x)
 
         x = self.linear1(x)
         x = self.linear2(x)
