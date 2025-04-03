@@ -45,6 +45,12 @@ class easyCNN_01(nn.Module):
             nn.Dropout(p=0.5),
             nn.Tanh()
         )
+        # 141376 -> 128
+        self.linearA = nn.Sequential(
+            nn.Linear(in_features=128, out_features=128),
+            nn.Dropout(p=0.5),
+            nn.Tanh()
+        )
         # 128 -> 128
         self.linear1 = nn.Sequential(
             nn.Linear(in_features=128, out_features=128),
@@ -102,6 +108,7 @@ class easyCNN_01(nn.Module):
         x = self.flatten0(x)
 
         x = self.linear0(x)
+        x = self.linearA(x)
 
         # calculate FiLM layers
         m = self.FiLM0(metadata)
