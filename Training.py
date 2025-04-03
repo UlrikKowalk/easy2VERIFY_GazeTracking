@@ -79,7 +79,7 @@ class Training:
             image_right = torch.unsqueeze(image_right, dim=1)
             target = torch.unsqueeze(target, dim=1)
             # bulk_head_position = torch.unsqueeze(bulk_head_position, dim=1)
-            image_left, image_right, target, head_position = (image_left.to(self.device),
+            image_left, image_right, target, metadata = (image_left.to(self.device),
                                                               image_right.to(self.device),
                                                               target.to(self.device),
                                                               metadata.to(self.device))
@@ -107,7 +107,7 @@ class Training:
             image_right = torch.unsqueeze(image_right, dim=1)
             target = torch.unsqueeze(target, dim=1)
             # bulk_head_position = torch.unsqueeze(bulk_head_position, dim=1)
-            image_left, image_right, target, head_position = (image_left.to(self.device),
+            image_left, image_right, target, metadata = (image_left.to(self.device),
                                                               image_right.to(self.device),
                                                               target.to(self.device),
                                                               metadata.to(self.device))
