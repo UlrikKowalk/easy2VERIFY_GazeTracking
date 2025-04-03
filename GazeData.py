@@ -62,8 +62,8 @@ class GazeData(Dataset):
         image_left = image[:, :self.width] * self.mask
         image_right = image[:, self.width:] * self.mask
 
-        image_left = torch.tensor(image_left[20:-20, 20:-20], dtype=torch.float32)
-        image_right = torch.tensor(image_right[20:-20, 20:-20], dtype=torch.float32)
+        image_left = image_left[20:-20, 20:-20]
+        image_right = image_right[20:-20, 20:-20]
 
         head_rotation = head_rotation / 180
         head_elevation = head_elevation / 180
