@@ -62,18 +62,18 @@ class GazeData(Dataset):
         image_left = image[:, :self.width] * self.mask
         image_right = image[:, self.width:] * self.mask
 
-        image_left = torch.tensor(image_left[20:-20, 20:-20], dtype=torch.float32, device=self.device)
-        image_right = torch.tensor(image_right[20:-20, 20:-20], dtype=torch.float32, device=self.device)
+        image_left = torch.tensor(image_left[20:-20, 20:-20], dtype=torch.float32)
+        image_right = torch.tensor(image_right[20:-20, 20:-20], dtype=torch.float32)
 
         head_rotation = head_rotation / 180
         head_elevation = head_elevation / 180
         head_roll = head_roll / 180
         face_distance /= 150
 
-        head_position = torch.tensor([head_rotation, head_elevation, head_roll, face_distance], dtype=torch.float32, device=self.device)
+        head_position = torch.tensor([head_rotation, head_elevation, head_roll, face_distance], dtype=torch.float32)
 
         #condition target values to be on interval [-1,1]
-        target = torch.tensor(target / torch.pi, dtype=torch.float32, device=self.device)
+        target = torch.tensor(target / torch.pi, dtype=torch.float32)
 
         # print(image_left.shape, image_right.shape, head_position.shape, target.shape)
 
