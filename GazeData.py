@@ -79,6 +79,4 @@ class GazeData(Dataset):
         #condition target values to be on interval [-1,1]
         target = torch.tensor(target / torch.pi, dtype=torch.float32)
 
-        # print(image_left.shape, image_right.shape, head_position.shape, target.shape)
-
         return image_left, image_right, target, head_position

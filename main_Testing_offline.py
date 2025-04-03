@@ -109,7 +109,7 @@ if __name__ == '__main__':
 
         predicted = dnn.forward(image_left, image_right, metadata)
 
-        list_predictions.append(predicted[0].cpu().detach().numpy())
+        list_predictions.append(predicted[0].cpu().detach().numpy()[0])
         list_targets.append(target[0].cpu().detach().numpy())
         list_head_rotation.append(metadata[0, 0].cpu().detach().numpy())
         list_head_elevation.append(metadata[0, 1].cpu().detach().numpy())

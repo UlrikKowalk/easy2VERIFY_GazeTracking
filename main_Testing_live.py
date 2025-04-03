@@ -179,7 +179,7 @@ class GazeLive(QtWidgets.QMainWindow):
             for col in range(width):
                 if np.sqrt((center[0]-row)**2 + (center[1]-col)**2) <= radius:
                     self.mask[row, col] = 1.0
-        self.mask = np.tile(A=self.mask, reps=(1, 2))
+        # self.mask = np.tile(A=self.mask, reps=(1, 2))
 
         # load model and push it to device
         map_location = torch.device(self.device)
@@ -283,25 +283,31 @@ class GazeLive(QtWidgets.QMainWindow):
                 # self.arduino_thread.set_data(led_pos=led_pos)
                 # self.list_target.append(target)
 
-                metadata = torch.tensor([self.head_azimuth_cam, self.head_elevation_cam, self.head_roll_cam, self.face_distance],
+                metadata = torch.tensor([self.head_azimuth_cam/180, self.head_elevation_cam/180, self.head_roll_cam/180, self.face_distance/300],
                                         dtype=torch.float32, device=self.device)
-                img_concat = cv2.hconcat([cv_img[left_left:left_left + left_height, left_top:left_top + left_width, :],
-                                          cv_img[right_left:right_left + right_height, right_top:right_top + right_width, :]])
+                # img_concat = cv2.hconcat([cv_img[left_left:left_left + left_height, left_top:left_top + left_width, :],
+                #                           cv_img[right_left:right_left + right_height, right_top:right_top + right_width, :]])
+
+                im_left = cv_img[left_left:left_left + left_height, left_top:left_top + left_width, :]
+                im_right = cv_img[right_left:right_left + right_height, right_top:right_top + right_width, :]
 
                 # factor by which to rescale
-                scaling_factor = 200.0 / img_concat.shape[1]
-                img_scaled = cv2.resize(img_concat, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
-                img_scaled = torch.tensor(img_scaled, device=self.device, dtype=torch.float32)
-                img_scaled = torch.mean(img_scaled, dim=-1)
+                scaling_factor = 100.0 / im_left.shape[1]
+                img_left_scaled = cv2.resize(im_left, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
+                img_right_scaled = cv2.resize(im_right, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
+                img_left = torch.tensor(im_left, device=self.device, dtype=torch.float32)
+                im_right = torch.tensor(im_right, device=self.device, dtype=torch.float32)
+                img_left = torch.mean(im_left, dim=-1) * self.mask
+                im_right = torch.mean(im_right, dim=-1) * self.mask
                 # execute mask
-                img_scaled *= self.mask
+                # img_scaled *= self.mask
                 # plt.imshow(img_scaled)
                 # plt.show()
-                image_left = img_scaled[:, :100]
-                image_right = img_scaled[:, 100:]
+                # image_left = img_scaled[:, :100]
+                # image_right = img_scaled[:, 100:]
 
-                image_left = image_left[20:-20, 20:-20]
-                image_right = image_right[20:-20, 20:-20]
+                image_left = im_left[20:-20, 20:-20]
+                image_right = im_right[20:-20, 20:-20]
 
                 image_left = torch.unsqueeze(image_left, dim=0)
                 image_left = torch.unsqueeze(image_left, dim=0)
