@@ -12,6 +12,7 @@ class GazeData(Dataset):
 
     def __init__(self, directory, device):
 
+        self.internal_index = 0
         self.directory = directory
         self.device = device
         self.dataframe = pd.DataFrame(pd.DataFrame({
@@ -48,6 +49,9 @@ class GazeData(Dataset):
         return self.length
 
     def __getitem__(self, index):
+
+        index = self.internal_index
+        self.internal_index += 1
 
         directory = self.dataframe['directory'][index]
         filename = self.dataframe['filename'][index]
