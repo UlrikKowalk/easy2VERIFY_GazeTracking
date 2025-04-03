@@ -21,27 +21,27 @@ class easyCNN_01(nn.Module):
         )
 
         self.conv1 = nn.Sequential(
-            # 16@56x56 -> 16@52x52
-            nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(5, 5), stride=(1, 1), padding=(0, 0)),
+            # 16@56x56 -> 16@54x54
+            nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0)),
             nn.BatchNorm2d(LATENT_CHANNELS),
             nn.Dropout2d(0.5),
             nn.LeakyReLU()
         )
 
         self.conv2 = nn.Sequential(
-            # 16@52x52 -> 16@48x48
-            nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(5, 5), stride=(1, 1), padding=(0, 0)),
+            # 16@54x54 -> 16@52x52
+            nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0)),
             nn.BatchNorm2d(LATENT_CHANNELS),
             nn.Dropout2d(0.5),
             nn.LeakyReLU()
         )
 
-        # 16@48x48-> 16*48*48 = 141376
+        # 16@52x52-> 16*52*52 = 141376
         self.flatten0 = nn.Flatten()
 
         # 141376 -> 128
         self.linear0 = nn.Sequential(
-            nn.Linear(in_features=LATENT_CHANNELS*48*48, out_features=128),
+            nn.Linear(in_features=LATENT_CHANNELS*52*52, out_features=128),
             nn.Dropout(p=0.5),
             nn.Sigmoid()
         )
