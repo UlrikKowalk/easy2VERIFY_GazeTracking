@@ -72,7 +72,7 @@ class GazeData(Dataset):
 
         head_position = torch.tensor([head_rotation, head_elevation, head_roll, face_distance], dtype=torch.float32, device=self.device)
 
-        #condition target values to be on interval [0,1]
+        #condition target values to be on interval [-1,1]
         target = torch.tensor(target / torch.pi, dtype=torch.float32, device=self.device)
 
         return image_left, image_right, target, head_position
