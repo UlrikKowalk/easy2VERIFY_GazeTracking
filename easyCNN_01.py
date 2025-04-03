@@ -77,6 +77,10 @@ class easyCNN_01(nn.Module):
             nn.Dropout(p=0.5),
             nn.Tanh()
         )
+        self.GRU = nn.GRU(input_size=128, hidden_size=128,
+               num_layers=2, batch_first=True,
+               dropout=0.5,
+               bidirectional=False)
 
         # 512 -> 512
         self.act = nn.LeakyReLU()
@@ -108,6 +112,8 @@ class easyCNN_01(nn.Module):
 
         # conduct FiLM
         x = alpha * x + beta
+
+        x = self.GRU(x)
 
         x = self.linear1(x)
         x = self.linear2(x)
