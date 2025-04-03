@@ -36,18 +36,21 @@ class easyCNN_01(nn.Module):
             nn.LeakyReLU()
         )
 
+        self.conv3 = nn.Sequential(
+            # 16@54x54 -> 16@52x52
+            nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(3, 3), stride=(1, 1),
+                      padding=(0, 0)),
+            nn.BatchNorm2d(LATENT_CHANNELS),
+            nn.Dropout2d(0.5),
+            nn.LeakyReLU()
+        )
+
         # 16@11x11-> 16*11*11 = 141376
         self.flatten0 = nn.Flatten()
 
         # 141376 -> 128
         self.linear0 = nn.Sequential(
-            nn.Linear(in_features=LATENT_CHANNELS*54*54, out_features=128),
-            nn.Dropout(p=0.5),
-            nn.Tanh()
-        )
-        # 141376 -> 128
-        self.linearA = nn.Sequential(
-            nn.Linear(in_features=128, out_features=128),
+            nn.Linear(in_features=LATENT_CHANNELS*52*52, out_features=128),
             nn.Dropout(p=0.5),
             nn.Tanh()
         )
@@ -104,11 +107,11 @@ class easyCNN_01(nn.Module):
         x = self.conv0(x)
         x = self.conv1(x)
         x = self.conv2(x)
+        x = self.conv3(x)
 
         x = self.flatten0(x)
 
         x = self.linear0(x)
-        x = self.linearA(x)
 
         # calculate FiLM layers
         m = self.FiLM0(metadata)
