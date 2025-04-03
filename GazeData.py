@@ -52,7 +52,7 @@ class GazeData(Dataset):
         directory = self.dataframe['directory'][index]
         filename = self.dataframe['filename'][index]
         image = cv2.imread(f'{directory}/{filename}', cv2.IMREAD_GRAYSCALE).astype(np.float32)
-        target = self.dataframe['target'][index].astype(np.float32)
+        target = self.dataframe['target'][index]
         head_rotation = self.dataframe['head_rotation'][index]
         head_elevation = self.dataframe['head_elevation'][index]
         head_roll = self.dataframe['head_roll'][index]
@@ -74,5 +74,7 @@ class GazeData(Dataset):
 
         #condition target values to be on interval [-1,1]
         target = torch.tensor(target / torch.pi, dtype=torch.float32, device=self.device)
+
+        # print(image_left.shape, image_right.shape, head_position.shape, target.shape)
 
         return image_left, image_right, target, head_position

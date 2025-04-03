@@ -3,7 +3,7 @@ is_training: True
 is_continuing: False
 
 BATCH_SIZE: 16
-NUM_WORKERS: 24
+NUM_WORKERS: 12
 EPOCHS: 100
 LEARNING_RATE: 0.0001
 RATIO: 0.8
