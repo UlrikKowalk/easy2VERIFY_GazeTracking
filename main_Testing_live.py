@@ -1,6 +1,7 @@
 import time
 import yaml
 import torch
+
 from easyCNN_01 import easyCNN_01
 from Core.VideoSourceMulti import VideoSourceMulti
 from Core.FaceMapping import FaceMapping
@@ -170,11 +171,11 @@ class GazeLive(QtWidgets.QMainWindow):
         print(f"Using device '{self.device}'.")
 
         # draw mask to focus on eye -> dimensions are known
-        width = 100
-        height = 100
-        center = [50, 50]
+        width = 60
+        height = 60
+        center = [30, 30]
         radius = 30
-        self.mask = np.zeros(shape=(height, width), dtype=np.uint8)
+        self.mask = torch.zeros(size=(height, width), dtype=torch.float32, device=self.device)
         for row in range(height):
             for col in range(width):
                 if np.sqrt((center[0]-row)**2 + (center[1]-col)**2) <= radius:
@@ -295,10 +296,11 @@ class GazeLive(QtWidgets.QMainWindow):
                 scaling_factor = 100.0 / im_left.shape[1]
                 img_left_scaled = cv2.resize(im_left, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
                 img_right_scaled = cv2.resize(im_right, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
-                img_left = torch.tensor(im_left, device=self.device, dtype=torch.float32)
-                im_right = torch.tensor(im_right, device=self.device, dtype=torch.float32)
-                img_left = torch.mean(im_left, dim=-1) * self.mask
-                im_right = torch.mean(im_right, dim=-1) * self.mask
+                im_left = torch.tensor(img_left_scaled, device=self.device, dtype=torch.float32)
+                im_right = torch.tensor(img_right_scaled, device=self.device, dtype=torch.float32)
+
+                im_left = im_left[20:-20, 20:-20, 0] * self.mask
+                im_right = im_right[20:-20, 20:-20, 0] * self.mask
                 # execute mask
                 # img_scaled *= self.mask
                 # plt.imshow(img_scaled)
@@ -306,19 +308,22 @@ class GazeLive(QtWidgets.QMainWindow):
                 # image_left = img_scaled[:, :100]
                 # image_right = img_scaled[:, 100:]
 
-                image_left = im_left[20:-20, 20:-20]
-                image_right = im_right[20:-20, 20:-20]
-
-                image_left = torch.unsqueeze(image_left, dim=0)
-                image_left = torch.unsqueeze(image_left, dim=0)
-                image_right = torch.unsqueeze(image_right, dim=0)
-                image_right = torch.unsqueeze(image_right, dim=0)
+                im_left = torch.unsqueeze(im_left, dim=0)
+                im_left = torch.unsqueeze(im_left, dim=0)
+                im_right = torch.unsqueeze(im_right, dim=0)
+                im_right = torch.unsqueeze(im_right, dim=0)
                 metadata = torch.unsqueeze(metadata, dim=0)
 
                 # result should (!) be -45°...+45° in radian
-                result = self.dnn.forward(image_left, image_right, metadata)
+                result = self.dnn.forward(im_left, im_right, metadata)
+                result *= torch.pi
+                result *= 2.0
+                result *= self.num_leds
+                result += self.num_leds/2
+                print(result)
+                led_pos = int(result)
                 # led_pos = int((result + 45/180*np.pi) / (np.pi/2) * self.num_leds) #Tanh
-                led_pos = int((result + 1) * self.num_leds) #Sigmoid
+                # led_pos = int((result + 1) * self.num_leds) #Sigmoid
                 # led_pos = int((metadata[0, 0]*2+45)/90 * self.num_leds)
 
                 # sig = [' '*int((result.cpu().detach().numpy()+0.25)*4*30)+'|'+' '*int((0.5-result.cpu().detach().numpy()+0.25)*4*30)]
