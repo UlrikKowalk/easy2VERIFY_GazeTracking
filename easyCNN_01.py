@@ -87,7 +87,7 @@ class easyCNN_01(nn.Module):
         #     nn.Tanh()
         # )
         self.GRU = nn.GRU(input_size=128, hidden_size=128,
-               num_layers=5, batch_first=True,
+               num_layers=9, batch_first=True,
                dropout=0.5,
                bidirectional=False)
 

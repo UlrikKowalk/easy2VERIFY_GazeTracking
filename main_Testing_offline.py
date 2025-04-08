@@ -58,7 +58,7 @@ if __name__ == '__main__':
     print(f"Using device '{device}'.")
 
     dataset = GazeData(directory=simulation_parameters["dataset"], device=device)
-    dataset.set_length(100)
+    dataset.set_length(10)
 
     dnn = easyCNN_01()
 
@@ -136,7 +136,7 @@ if __name__ == '__main__':
             path_or_buf="easyTest.csv",
             index=False)
 
-    print('\n', np.std(np.array(list_predictions) - np.array(list_targets)))
+    print('\n', 1000*np.std(np.array(list_predictions) - np.array(list_targets)))
 
     plt.plot(list_predictions)
     plt.plot(list_targets)
