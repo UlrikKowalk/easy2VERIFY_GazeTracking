@@ -74,17 +74,17 @@ class easyCNN_01(nn.Module):
         self.FiLM0 = nn.Sequential(
             nn.Linear(in_features=4, out_features=2*128),
             nn.Dropout(p=0.5),
-            nn.Tanh()
+            nn.Sigmoid()
         )
         self.FiLM1 = nn.Sequential(
             nn.Linear(in_features=2*128, out_features=2*128),
             nn.Dropout(p=0.5),
-            nn.Tanh()
+            nn.Sigmoid()
         )
         self.FiLM2 = nn.Sequential(
             nn.Linear(in_features=2*128, out_features=2*128),
             nn.Dropout(p=0.5),
-            nn.Tanh()
+            nn.Sigmoid()
         )
         self.GRU = nn.GRU(input_size=128, hidden_size=128,
                num_layers=9, batch_first=True,
