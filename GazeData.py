@@ -48,6 +48,9 @@ class GazeData(Dataset):
     def __len__(self):
         return self.length
 
+    def set_length(self, length):
+        self.length = length
+
     def __getitem__(self, index):
 
         index = self.internal_index
