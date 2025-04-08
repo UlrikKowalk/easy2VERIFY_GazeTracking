@@ -50,7 +50,7 @@ class easyCNN_01(nn.Module):
 
         # 141376 -> 128
         self.linear0 = nn.Sequential(
-            nn.Linear(in_features=LATENT_CHANNELS*52*52+4, out_features=128),
+            nn.Linear(in_features=LATENT_CHANNELS*52*52, out_features=128),
             nn.Dropout(p=0.5),
             nn.Tanh()
         )
@@ -71,21 +71,21 @@ class easyCNN_01(nn.Module):
             in_features=128, out_features=1
         )
 
-        # self.FiLM0 = nn.Sequential(
-        #     nn.Linear(in_features=4, out_features=2*128),
-        #     nn.Dropout(p=0.5),
-        #     nn.Tanh()
-        # )
-        # self.FiLM1 = nn.Sequential(
-        #     nn.Linear(in_features=2*128, out_features=2*128),
-        #     nn.Dropout(p=0.5),
-        #     nn.Tanh()
-        # )
-        # self.FiLM2 = nn.Sequential(
-        #     nn.Linear(in_features=2*128, out_features=2*128),
-        #     nn.Dropout(p=0.5),
-        #     nn.Tanh()
-        # )
+        self.FiLM0 = nn.Sequential(
+            nn.Linear(in_features=4, out_features=2*128),
+            nn.Dropout(p=0.5),
+            nn.Tanh()
+        )
+        self.FiLM1 = nn.Sequential(
+            nn.Linear(in_features=2*128, out_features=2*128),
+            nn.Dropout(p=0.5),
+            nn.Tanh()
+        )
+        self.FiLM2 = nn.Sequential(
+            nn.Linear(in_features=2*128, out_features=2*128),
+            nn.Dropout(p=0.5),
+            nn.Tanh()
+        )
         self.GRU = nn.GRU(input_size=128, hidden_size=128,
                num_layers=9, batch_first=True,
                dropout=0.5,
@@ -111,19 +111,19 @@ class easyCNN_01(nn.Module):
 
         x = self.flatten0(x)
 
-        x = torch.cat((x, metadata), dim=-1)
+        # x = torch.cat((x, metadata), dim=-1)
 
         x = self.linear0(x)
 
         # calculate FiLM layers
-        # m = self.FiLM0(metadata)
-        # m = self.FiLM1(m)
-        # m = self.FiLM2(m)
-        # alpha = m[:, :128]
-        # beta = m[:, 128:]
+        m = self.FiLM0(metadata)
+        m = self.FiLM1(m)
+        m = self.FiLM2(m)
+        alpha = m[:, :128]
+        beta = m[:, 128:]
 
         # conduct FiLM
-        # x = alpha * x + beta
+        x = alpha * x + beta
 
         (x, _) = self.GRU(x)
 
