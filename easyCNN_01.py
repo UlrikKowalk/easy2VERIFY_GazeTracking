@@ -52,19 +52,19 @@ class easyCNN_01(nn.Module):
         self.linear0 = nn.Sequential(
             nn.Linear(in_features=LATENT_CHANNELS*52*52, out_features=128),
             nn.Dropout(p=0.5),
-            nn.Tanh()
+            nn.Sigmoid()
         )
         # 128 -> 128
         self.linear1 = nn.Sequential(
             nn.Linear(in_features=128, out_features=128),
             nn.Dropout(p=0.5),
-            nn.Tanh()
+            nn.Sigmoid()
         )
         # 128 -> 128
         self.linear2 = nn.Sequential(
             nn.Linear(in_features=128, out_features=128),
             nn.Dropout(p=0.5),
-            nn.Tanh()
+            nn.Sigmoid()
         )
         # 128 -> 72
         self.linear3 = nn.Linear(
