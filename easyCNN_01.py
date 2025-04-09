@@ -13,23 +13,23 @@ class easyCNN_01(nn.Module):
         self.norm = nn.GroupNorm(num_groups=2, num_channels=2)
 
         self.conv0 = nn.Sequential(
-            # 2@60x60 -> 16@56x56
-            nn.Conv2d(in_channels=2, out_channels=LATENT_CHANNELS, kernel_size=(5, 5),  stride=(1, 1), padding=(0, 0)),
+            # 2@60x60 -> 16@58x58
+            nn.Conv2d(in_channels=2, out_channels=LATENT_CHANNELS, kernel_size=(3, 3),  stride=(1, 1), padding=(0, 0)),
             nn.BatchNorm2d(LATENT_CHANNELS),
             nn.Dropout2d(0.5),
             nn.LeakyReLU()
         )
 
         self.conv1 = nn.Sequential(
-            # 16@56x56 -> 16@52x52
-            nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(5, 5), stride=(1, 1), padding=(0, 0)),
+            # 16@58x58 -> 16@56x56
+            nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0)),
             nn.BatchNorm2d(LATENT_CHANNELS),
             nn.Dropout2d(0.5),
             nn.LeakyReLU()
         )
 
         self.conv2 = nn.Sequential(
-            # 16@52x52 -> 16@50x50
+            # 16@56x56 -> 16@54x54
             nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0)),
             nn.BatchNorm2d(LATENT_CHANNELS),
             nn.Dropout2d(0.5),
@@ -37,7 +37,7 @@ class easyCNN_01(nn.Module):
         )
 
         self.conv3 = nn.Sequential(
-            # 16@50x50 -> 16@48x48
+            # 16@54x54 -> 16@52x52
             nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(3, 3), stride=(1, 1),
                       padding=(0, 0)),
             nn.BatchNorm2d(LATENT_CHANNELS),
@@ -50,13 +50,13 @@ class easyCNN_01(nn.Module):
 
         # 141376 -> 128
         self.linear0 = nn.Sequential(
-            nn.Linear(in_features=LATENT_CHANNELS*48*48, out_features=128),
+            nn.Linear(in_features=LATENT_CHANNELS*52*52, out_features=1024),
             nn.Dropout(p=0.5),
             nn.Sigmoid()
         )
         # 128 -> 128
         self.linear1 = nn.Sequential(
-            nn.Linear(in_features=128, out_features=128),
+            nn.Linear(in_features=1024, out_features=128),
             nn.Dropout(p=0.5),
             nn.Sigmoid()
         )
@@ -77,16 +77,16 @@ class easyCNN_01(nn.Module):
             nn.Sigmoid()
         )
         self.FiLM1 = nn.Sequential(
-            nn.Linear(in_features=2*128, out_features=2*128),
+            nn.Linear(in_features=2*128, out_features=1024),
             nn.Dropout(p=0.5),
             nn.Sigmoid()
         )
         self.FiLM2 = nn.Sequential(
-            nn.Linear(in_features=2*128, out_features=2*128),
+            nn.Linear(in_features=1024, out_features=2*1024),
             nn.Dropout(p=0.5),
             nn.Sigmoid()
         )
-        self.GRU = nn.GRU(input_size=128, hidden_size=128,
+        self.GRU = nn.GRU(input_size=128, hidden_size=1024,
                num_layers=3, batch_first=True,
                dropout=0.5,
                bidirectional=False)
@@ -119,8 +119,8 @@ class easyCNN_01(nn.Module):
         m = self.FiLM0(metadata)
         m = self.FiLM1(m)
         m = self.FiLM2(m)
-        alpha = m[:, :128]
-        beta = m[:, 128:]
+        alpha = m[:, :1024]
+        beta = m[:, 1024:]
 
         # conduct FiLM
         x = alpha * x + beta
