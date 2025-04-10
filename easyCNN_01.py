@@ -14,7 +14,7 @@ class easyCNN_01(nn.Module):
 
         self.conv0 = nn.Sequential(
             # 2@60x60 -> 16@58x58
-            nn.Conv2d(in_channels=2, out_channels=LATENT_CHANNELS, kernel_size=(3, 3),  stride=(1, 1), padding=(0, 0), groups=2),
+            nn.Conv2d(in_channels=2, out_channels=LATENT_CHANNELS, kernel_size=(3, 3),  stride=(1, 1), padding=(0, 0), groups=1),
             nn.BatchNorm2d(LATENT_CHANNELS),
             nn.Dropout2d(0.5),
             nn.LeakyReLU()
@@ -22,7 +22,7 @@ class easyCNN_01(nn.Module):
 
         self.conv1 = nn.Sequential(
             # 16@58x58 -> 16@56x56
-            nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0), groups=2),
+            nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0), groups=1),
             nn.BatchNorm2d(LATENT_CHANNELS),
             nn.Dropout2d(0.5),
             nn.LeakyReLU()
@@ -30,7 +30,7 @@ class easyCNN_01(nn.Module):
 
         self.conv2 = nn.Sequential(
             # 16@56x56 -> 16@54x54
-            nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0), groups=2),
+            nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0), groups=1),
             nn.BatchNorm2d(LATENT_CHANNELS),
             nn.Dropout2d(0.5),
             nn.LeakyReLU()
@@ -39,7 +39,7 @@ class easyCNN_01(nn.Module):
         self.conv3 = nn.Sequential(
             # 16@54x54 -> 16@52x52
             nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(3, 3), stride=(1, 1),
-                      padding=(0, 0), groups=2),
+                      padding=(0, 0), groups=1),
             nn.BatchNorm2d(LATENT_CHANNELS),
             nn.Dropout2d(0.5),
             nn.LeakyReLU()
@@ -116,8 +116,8 @@ class easyCNN_01(nn.Module):
         m = self.FiLM0(metadata)
         m = self.FiLM1(m)
         m = self.FiLM2(m)
-        alpha = m[:, :1024]
-        beta = m[:, 1024:]
+        alpha = m[:, :128]
+        beta = m[:, 128:]
 
         # conduct FiLM
         x = alpha * x + beta
