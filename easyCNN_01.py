@@ -3,7 +3,7 @@ from torch import nn
 import torch
 
 
-LATENT_CHANNELS = 4
+LATENT_CHANNELS = 2
 
 class easyCNN_01(nn.Module):
 
@@ -14,7 +14,7 @@ class easyCNN_01(nn.Module):
 
         self.conv0 = nn.Sequential(
             # 2@60x60 -> 16@58x58
-            nn.Conv2d(in_channels=2, out_channels=LATENT_CHANNELS, kernel_size=(3, 3),  stride=(1, 1), padding=(0, 0), groups=1),
+            nn.Conv2d(in_channels=2, out_channels=LATENT_CHANNELS, kernel_size=(3, 3),  stride=(1, 1), padding=(0, 0)),
             nn.BatchNorm2d(LATENT_CHANNELS),
             nn.Dropout2d(0.5),
             nn.LeakyReLU()
@@ -22,7 +22,7 @@ class easyCNN_01(nn.Module):
 
         self.conv1 = nn.Sequential(
             # 16@58x58 -> 16@56x56
-            nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0), groups=1),
+            nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0)),
             nn.BatchNorm2d(LATENT_CHANNELS),
             nn.Dropout2d(0.5),
             nn.LeakyReLU()
@@ -30,7 +30,7 @@ class easyCNN_01(nn.Module):
 
         self.conv2 = nn.Sequential(
             # 16@56x56 -> 16@54x54
-            nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0), groups=1),
+            nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0)),
             nn.BatchNorm2d(LATENT_CHANNELS),
             nn.Dropout2d(0.5),
             nn.LeakyReLU()
