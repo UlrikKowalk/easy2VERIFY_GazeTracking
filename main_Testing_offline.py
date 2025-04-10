@@ -58,7 +58,7 @@ if __name__ == '__main__':
     print(f"Using device '{device}'.")
 
     dataset = GazeData(directory=simulation_parameters["dataset"], device=device)
-    # dataset.set_length(100)
+    dataset.set_length(100)
 
     dnn = easyCNN_01()
 
@@ -138,12 +138,14 @@ if __name__ == '__main__':
 
     print('\n', 1000*np.std(np.array(list_predictions) - np.array(list_targets)))
 
-    plt.plot(list_predictions)
-    plt.plot(list_targets)
-    plt.plot(list_head_rotation)
-    plt.plot(list_head_elevation)
-    plt.plot(list_head_roll)
-    plt.plot(list_face_distance)
+    fig, ax = plt.subplots(1, 1)
+    ax.plot(list_predictions, label='prediction')
+    ax.plot(list_targets, label='target')
+    ax.plot(list_head_rotation, label='head rotation')
+    ax.plot(list_head_elevation, label='head elevation')
+    ax.plot(list_head_roll, label='head roll')
+    ax.plot(list_face_distance, label='face distance')
+    ax.legend()
     plt.show()
 
     # MAE_CNN = np.mean(list_error)

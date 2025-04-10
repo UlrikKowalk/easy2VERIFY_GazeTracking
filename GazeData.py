@@ -73,8 +73,11 @@ class GazeData(Dataset):
         image_right = image_right[20:-20, 20:-20]
 
         # invert image
-        image_left = 512 - image_left
-        image_right = 512 - image_right
+        # image_left = 512 - image_left
+        # image_right = 512 - image_right
+        #
+        # plt.imshow(image_left)
+        # plt.show()
 
         head_rotation = head_rotation / 180
         head_elevation = head_elevation / 180
