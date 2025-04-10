@@ -3,33 +3,35 @@ from torch import nn
 import torch
 
 
-LATENT_CHANNELS = 2
+LATENT_CHANNELS = 8
 
 class easyCNN_01(nn.Module):
 
     def __init__(self):
         super().__init__()
 
-        self.norm = nn.GroupNorm(num_groups=2, num_channels=2)
+        self.norm = nn.GroupNorm(num_groups=1, num_channels=2)
 
         self.conv0 = nn.Sequential(
-            # 2@60x60 -> 16@58x58
+            # 2@60x60 -> 2@29x29
             nn.Conv2d(in_channels=2, out_channels=LATENT_CHANNELS, kernel_size=(3, 3),  stride=(1, 1), padding=(0, 0)),
             nn.BatchNorm2d(LATENT_CHANNELS),
+            nn.AvgPool2d(2),
             nn.Dropout2d(0.5),
             nn.LeakyReLU()
         )
 
         self.conv1 = nn.Sequential(
-            # 16@58x58 -> 16@56x56
+            # 2@29x29 -> 2@13x13
             nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0)),
             nn.BatchNorm2d(LATENT_CHANNELS),
+            nn.AvgPool2d(2),
             nn.Dropout2d(0.5),
             nn.LeakyReLU()
         )
 
         self.conv2 = nn.Sequential(
-            # 16@56x56 -> 16@54x54
+            # 2@13x13 -> 2@11x11
             nn.Conv2d(in_channels=LATENT_CHANNELS, out_channels=LATENT_CHANNELS, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0)),
             nn.BatchNorm2d(LATENT_CHANNELS),
             nn.Dropout2d(0.5),
@@ -50,7 +52,7 @@ class easyCNN_01(nn.Module):
 
         # 141376 -> 128
         self.linear0 = nn.Sequential(
-            nn.Linear(in_features=LATENT_CHANNELS*54*54, out_features=128),
+            nn.Linear(in_features=LATENT_CHANNELS*11*11, out_features=128),
             nn.Dropout(p=0.5),
             nn.Sigmoid()
         )
