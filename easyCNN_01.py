@@ -54,19 +54,19 @@ class easyCNN_01(nn.Module):
         self.linear0 = nn.Sequential(
             nn.Linear(in_features=LATENT_CHANNELS*52*52, out_features=128),
             nn.Dropout(p=0.5),
-            nn.LeakyReLU()
+            nn.Tanh()
         )
         # 128 -> 128
         self.linear1 = nn.Sequential(
             nn.Linear(in_features=128, out_features=128),
             nn.Dropout(p=0.5),
-            nn.LeakyReLU()
+            nn.Tanh()
         )
         # 128 -> 128
         self.linear2 = nn.Sequential(
             nn.Linear(in_features=128, out_features=128),
             nn.Dropout(p=0.5),
-            nn.LeakyReLU()
+            nn.Tanh()
         )
         # 128 -> 72
         self.linear3 = nn.Linear(
@@ -76,17 +76,17 @@ class easyCNN_01(nn.Module):
         self.FiLM0 = nn.Sequential(
             nn.Linear(in_features=4, out_features=2*128),
             nn.Dropout(p=0.5),
-            nn.LeakyReLU()
+            nn.Tanh()
         )
         self.FiLM1 = nn.Sequential(
             nn.Linear(in_features=2*128, out_features=128),
             nn.Dropout(p=0.5),
-            nn.LeakyReLU()
+            nn.Tanh()
         )
         self.FiLM2 = nn.Sequential(
             nn.Linear(in_features=128, out_features=2*128),
             nn.Dropout(p=0.5),
-            nn.LeakyReLU()
+            nn.Tanh()
         )
         self.GRU = nn.GRU(input_size=128, hidden_size=128,
                num_layers=3, batch_first=True,
