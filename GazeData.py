@@ -37,7 +37,7 @@ class GazeData(Dataset):
 
         # draw mask to focus on eye -> dimensions are known
         center = [int(self.width/2), int(self.height/2)]
-        radius = int(self.width/2) - 20
+        radius = int(self.width/2)
         self.mask = np.zeros(shape=(self.height, self.width), dtype=np.float32)
         for row in range(self.height):
             for col in range(self.width):

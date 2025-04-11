@@ -58,7 +58,7 @@ if __name__ == '__main__':
     print(f"Using device '{device}'.")
 
     dataset = GazeData(directory=simulation_parameters["dataset"], device=device)
-    dataset.set_length(1000)
+    dataset.set_length(100)
 
     dnn = easyCNN_01()
 
@@ -69,15 +69,15 @@ if __name__ == '__main__':
     dnn.to(device)
 
     # draw mask to focus on eye -> dimensions are known
-    width = 60
-    height = 60
-    center = [30, 30]
-    radius = 30
-    mask = np.zeros(shape=(height, width), dtype=np.uint8)
-    for row in range(height):
-        for col in range(width):
-            if np.sqrt((center[0] - row) ** 2 + (center[1] - col) ** 2) <= radius:
-                mask[row, col] = 1.0
+    # width = 60
+    # height = 60
+    # center = [30, 30]
+    # radius = 30
+    # mask = np.zeros(shape=(height, width), dtype=np.uint8)
+    # for row in range(height):
+    #     for col in range(width):
+    #         if np.sqrt((center[0] - row) ** 2 + (center[1] - col) ** 2) <= radius:
+    #             mask[row, col] = 1.0
 
     list_predictions = []
     list_targets = []

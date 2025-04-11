@@ -1,4 +1,4 @@
-from matplotlib.pyplot import xlabel
+import matplotlib.pyplot as plt
 from torch import nn
 import torch
 
@@ -98,6 +98,9 @@ class easyCNN_01(nn.Module):
     def forward(self, image_left, image_right, metadata):
 
         input_data = torch.cat((image_left, image_right), dim=1)
+
+        plt.imshow(image_left[0, 0, :, :].cpu().detach().numpy())
+        plt.show()
 
         # Normalise batch
         x = self.norm(input_data)
