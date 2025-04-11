@@ -108,10 +108,10 @@ if __name__ == '__main__':
         # load metadata to inference device (cpu/cuda)
         metadata = metadata.to(device)
 
-        predicted = dnn.forward(image_left, image_right, metadata)
+        predicted = 2*dnn.forward(image_left, image_right, metadata)
 
         list_predictions.append(predicted[0].cpu().detach().numpy()[0])
-        list_targets.append(target[0].cpu().detach().numpy())
+        list_targets.append(2*target[0].cpu().detach().numpy())
         list_head_rotation.append(metadata[0, 0].cpu().detach().numpy())
         list_head_elevation.append(metadata[0, 1].cpu().detach().numpy())
         list_head_roll.append(metadata[0, 2].cpu().detach().numpy())

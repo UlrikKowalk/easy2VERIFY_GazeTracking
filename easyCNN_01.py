@@ -3,7 +3,7 @@ from torch import nn
 import torch
 
 
-LATENT_CHANNELS = 8
+LATENT_CHANNELS = 16
 
 class easyCNN_01(nn.Module):
 
