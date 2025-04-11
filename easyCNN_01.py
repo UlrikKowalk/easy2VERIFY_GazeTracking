@@ -99,11 +99,13 @@ class easyCNN_01(nn.Module):
 
         input_data = torch.cat((image_left, image_right), dim=1)
 
-        plt.imshow(image_left[0, 0, :, :].cpu().detach().numpy())
-        plt.show()
+
 
         # Normalise batch
         x = self.norm(input_data)
+
+        # plt.imshow(x[0, 0, :, :].cpu().detach().numpy())
+        # plt.show()
 
         # Neural Net
         x = self.conv0(x)
@@ -130,7 +132,7 @@ class easyCNN_01(nn.Module):
         x = self.linear1(x)
         x = self.linear2(x)
 
-        (x, _) = self.GRU(x)
+        # (x, _) = self.GRU(x)
 
         predictions = self.linear3(x)
 
