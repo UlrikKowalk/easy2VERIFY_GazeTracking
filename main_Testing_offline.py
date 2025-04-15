@@ -10,6 +10,8 @@ import pandas as pd
 import torch.nn
 from matplotlib import pyplot as plt
 from torch.utils.data import DataLoader
+from filterpy.kalman import KalmanFilter
+from filterpy.common import Q_discrete_white_noise
 
 import Core.Evaluation as Evaluation
 from GazeData import GazeData
@@ -58,7 +60,7 @@ if __name__ == '__main__':
     print(f"Using device '{device}'.")
 
     dataset = GazeData(directory=simulation_parameters["dataset"], device=device)
-    # dataset.set_length(1000)
+    dataset.set_length(1000)
 
     dnn = easyCNN_01()
 
@@ -67,6 +69,14 @@ if __name__ == '__main__':
     sd = torch.load(trained_net, map_location=map_location, weights_only=True)
     dnn.load_state_dict(sd)
     dnn.to(device)
+
+    kalman = KalmanFilter(dim_x=2, dim_z=1)
+    kalman.F = np.array([[1., 1.], [0., 1.]])
+    kalman.H = np.array([[1., 0.]])
+    kalman.P *= 10
+    kalman.R = 50
+    kalman.Q = Q_discrete_white_noise(dim=2, dt=1 / 30, var=0.5)
+    kalman.x = np.array([0, 0.])
 
     # draw mask to focus on eye -> dimensions are known
     # width = 60
@@ -110,7 +120,10 @@ if __name__ == '__main__':
 
         predicted = 2*dnn.forward(image_left, image_right, metadata)
 
-        list_predictions.append(predicted[0].cpu().detach().numpy()[0])
+        kalman.predict()
+        kalman.update(predicted.cpu().detach().numpy()[0])
+
+        list_predictions.append(kalman.x[0])
         list_targets.append(2*target[0].cpu().detach().numpy())
         list_head_rotation.append(metadata[0, 0].cpu().detach().numpy())
         list_head_elevation.append(metadata[0, 1].cpu().detach().numpy())

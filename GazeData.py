@@ -66,8 +66,8 @@ class GazeData(Dataset):
         face_distance = self.dataframe['face_distance'][index]
 
         # split eyes and execute mask
-        image_left = image[:, :self.width] * self.mask
-        image_right = image[:, self.width:] * self.mask
+        image_left = image[:, :self.width]# * self.mask
+        image_right = image[:, self.width:]# * self.mask
 
         image_left = image_left[20:-20, 20:-20]
         image_right = image_right[20:-20, 20:-20]

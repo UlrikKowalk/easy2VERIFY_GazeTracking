@@ -226,7 +226,7 @@ class GazeLive(QtWidgets.QMainWindow):
         self.kalman.P *= 10
         self.kalman.R = 50
         self.kalman.Q = Q_discrete_white_noise(dim=2, dt=1 / 30, var=0.5)
-        self.kalman.x = np.array([list_predictions[0], 0.])
+        self.kalman.x = np.array([0, 0.])
 
     def __del__(self):
         print('Stopping threads.')
@@ -309,8 +309,8 @@ class GazeLive(QtWidgets.QMainWindow):
                 im_left = torch.tensor(img_left_scaled, device=self.device, dtype=torch.float32)
                 im_right = torch.tensor(img_right_scaled, device=self.device, dtype=torch.float32)
 
-                im_left = im_left[20:-20, 20:-20, 0] * self.mask
-                im_right = im_right[20:-20, 20:-20, 0] * self.mask
+                im_left = im_left[20:-20, 20:-20, 0]# * self.mask
+                im_right = im_right[20:-20, 20:-20, 0]# * self.mask
                 # execute mask
                 # img_scaled *= self.mask
                 # plt.imshow(img_scaled)

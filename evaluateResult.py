@@ -17,7 +17,7 @@ kalman.H = np.array([[1.,0.]])
 kalman.P *= 10
 kalman.R = 50
 kalman.Q = Q_discrete_white_noise(dim=2, dt=1/30, var=0.5)
-kalman.x = np.array([list_predictions[0], 0.])
+kalman.x = np.array([0, 0.])
 
 for item in list_predictions:
     kalman.predict()
