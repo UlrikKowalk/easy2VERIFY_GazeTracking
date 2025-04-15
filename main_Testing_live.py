@@ -15,6 +15,8 @@ import os
 import serial
 import serial.tools.list_ports
 import matplotlib.pyplot as plt
+from filterpy.kalman import KalmanFilter
+from filterpy.common import Q_discrete_white_noise
 
 with open('config_testing.yml') as config:
     configuration = yaml.safe_load(config)
@@ -218,6 +220,14 @@ class GazeLive(QtWidgets.QMainWindow):
         self.is_blink = False
         self.is_recording = True
 
+        self.kalman = KalmanFilter(dim_x=2, dim_z=1)
+        self.kalman.F = np.array([[1., 1.], [0., 1.]])
+        self.kalman.H = np.array([[1., 0.]])
+        self.kalman.P *= 10
+        self.kalman.R = 50
+        self.kalman.Q = Q_discrete_white_noise(dim=2, dt=1 / 30, var=0.5)
+        self.kalman.x = np.array([list_predictions[0], 0.])
+
     def __del__(self):
         print('Stopping threads.')
         self.arduino_thread.stop()
@@ -318,6 +328,13 @@ class GazeLive(QtWidgets.QMainWindow):
                 result = self.dnn.forward(im_left, im_right, metadata)
                 result *= torch.pi
                 result *= 2.0
+
+                self.kalman.predict()
+                self.kalman.update(result)
+                result = self.kalman.x[0]
+
+
+
                 result *= self.num_leds
                 result += self.num_leds/2
                 print(result)

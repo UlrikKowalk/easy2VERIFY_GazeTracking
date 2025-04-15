@@ -58,7 +58,7 @@ if __name__ == '__main__':
     print(f"Using device '{device}'.")
 
     dataset = GazeData(directory=simulation_parameters["dataset"], device=device)
-    dataset.set_length(1000)
+    # dataset.set_length(1000)
 
     dnn = easyCNN_01()
 
