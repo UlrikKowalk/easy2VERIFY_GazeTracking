@@ -56,18 +56,21 @@ class easyCNN_01(nn.Module):
             nn.Dropout(p=0.5),
             nn.Tanh()
         )
+
         # 128 -> 128
         self.linear1 = nn.Sequential(
             nn.Linear(in_features=128, out_features=128),
             nn.Dropout(p=0.5),
             nn.Tanh()
         )
+
         # 128 -> 128
         self.linear2 = nn.Sequential(
             nn.Linear(in_features=128, out_features=128),
             nn.Dropout(p=0.5),
             nn.Tanh()
         )
+
         # 128 -> 72
         self.linear3 = nn.Linear(
             in_features=128, out_features=1
@@ -78,16 +81,19 @@ class easyCNN_01(nn.Module):
             nn.Dropout(p=0.5),
             nn.Tanh()
         )
+
         self.FiLM1 = nn.Sequential(
             nn.Linear(in_features=2*128, out_features=128),
             nn.Dropout(p=0.5),
             nn.Tanh()
         )
+
         self.FiLM2 = nn.Sequential(
             nn.Linear(in_features=128, out_features=2*128),
             nn.Dropout(p=0.5),
             nn.Tanh()
         )
+
         self.GRU = nn.GRU(input_size=128, hidden_size=128,
                num_layers=3, batch_first=True,
                dropout=0.5,
@@ -97,13 +103,21 @@ class easyCNN_01(nn.Module):
 
     def forward(self, image_left, image_right, metadata):
 
-        input_data = torch.cat((image_left, image_right), dim=1)
+        x = torch.cat((image_left, image_right), dim=1)
 
-        # Normalise batch
-        x = self.norm(input_data)
+        global_max = torch.max(torch.max(torch.max(x)))
+        global_min = torch.min(torch.min(torch.min(x)))
+
+        x -= global_min
+        x /= (global_max - global_min)
 
         # print(torch.max(torch.max(torch.max(x))))
         # print(torch.min(torch.min(torch.min(x))))
+
+        # Normalise batch
+        # x = self.norm(input_data)
+
+
 
         # plt.imshow(x[0, 0, :, :].cpu().detach().numpy())
         # plt.show()
