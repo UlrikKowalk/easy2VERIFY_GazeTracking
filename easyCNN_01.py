@@ -10,7 +10,7 @@ class easyCNN_01(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.norm = nn.GroupNorm(num_groups=1, num_channels=2)
+        self.norm = nn.GroupNorm(num_groups=1, num_channels=2, affine=False)
 
         self.conv0 = nn.Sequential(
             # 2@60x60 -> 2@58x58
@@ -99,10 +99,11 @@ class easyCNN_01(nn.Module):
 
         input_data = torch.cat((image_left, image_right), dim=1)
 
-
-
         # Normalise batch
         x = self.norm(input_data)
+
+        # print(torch.max(torch.max(torch.max(x))))
+        # print(torch.min(torch.min(torch.min(x))))
 
         # plt.imshow(x[0, 0, :, :].cpu().detach().numpy())
         # plt.show()
