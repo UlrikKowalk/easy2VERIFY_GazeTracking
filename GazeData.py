@@ -83,6 +83,7 @@ class GazeData(Dataset):
         head_elevation = head_elevation / 180
         head_roll = head_roll / 180
         face_distance /= 300
+        face_distance = 0
 
         head_position = torch.tensor([head_rotation, head_elevation, head_roll, face_distance], dtype=torch.float32)
 
