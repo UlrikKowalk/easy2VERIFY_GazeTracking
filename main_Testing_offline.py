@@ -16,6 +16,7 @@ from filterpy.common import Q_discrete_white_noise
 import Core.Evaluation as Evaluation
 from GazeData import GazeData
 from easyCNN_01 import easyCNN_01
+from easyCNN_02 import easyCNN_02
 from Core.Timer import Timer
 from random import Random
 
@@ -25,6 +26,7 @@ with open('config_testing.yml') as config:
 save_result = configuration['save_result']
 simulation_parameters = configuration['simulation_parameters']
 simulation_parameters['base_dir'] = os.getcwd()
+
 
 
 def boolean_string(s):
@@ -60,9 +62,12 @@ if __name__ == '__main__':
     print(f"Using device '{device}'.")
 
     dataset = GazeData(directory=simulation_parameters["dataset"], device=device)
-    dataset.set_length(1000)
+    # dataset.set_length(1000)
 
-    dnn = easyCNN_01()
+    if simulation_parameters['network'] == 'easyCNN_01':
+        dnn = easyCNN_01(use_metadata=simulation_parameters['use_metadata'])
+    elif simulation_parameters['network'] == 'easyCNN_02':
+        dnn = easyCNN_02()
 
     # load model and push it to device
     map_location = torch.device(device)
@@ -90,6 +95,7 @@ if __name__ == '__main__':
     #             mask[row, col] = 1.0
 
     list_predictions = []
+    list_predictions_filtered = []
     list_targets = []
     list_head_rotation = []
     list_head_elevation = []
@@ -119,19 +125,16 @@ if __name__ == '__main__':
         metadata = metadata.to(device)
 
         predicted = 2*dnn.forward(image_left, image_right, metadata)
-
         kalman.predict()
         kalman.update(predicted.cpu().detach().numpy()[0])
 
-        list_predictions.append(kalman.x[0])
+        list_predictions.append(predicted.cpu().detach().numpy()[0][0])
+        list_predictions_filtered.append(kalman.x[0])
         list_targets.append(2*target[0].cpu().detach().numpy())
         list_head_rotation.append(metadata[0, 0].cpu().detach().numpy())
         list_head_elevation.append(metadata[0, 1].cpu().detach().numpy())
         list_head_roll.append(metadata[0, 2].cpu().detach().numpy())
         list_face_distance.append(metadata[0, 3].cpu().detach().numpy())
-
-        # list_error.append(Evaluation.angular_error(expected, predicted,
-        #                 dataset.get_num_classes()) / dataset.get_num_classes() * dataset.get_max_theta())
 
         sys.stdout.write("\r{0}>".format("=" * round(50*idx/len(dataset))))
         sys.stdout.flush()
@@ -149,15 +152,18 @@ if __name__ == '__main__':
             path_or_buf="easyTest.csv",
             index=False)
 
-    print('\n', 1000*np.std(np.array(list_predictions) - np.array(list_targets)))
+    print('\nError:', 1000*np.std(np.array(list_predictions) - np.array(list_targets)))
+    print('Kalman filtered:', 1000 * np.std(np.array(list_predictions_filtered) - np.array(list_targets)))
 
     fig, ax = plt.subplots(1, 1)
     ax.plot(list_predictions, label='prediction')
+    ax.plot(list_predictions_filtered, label='prediction (kalman)')
     ax.plot(list_targets, label='target')
-    ax.plot(list_head_rotation, label='head rotation')
-    ax.plot(list_head_elevation, label='head elevation')
-    ax.plot(list_head_roll, label='head roll')
-    ax.plot(list_face_distance, label='face distance')
+    if simulation_parameters['use_metadata']:
+        ax.plot(list_head_rotation, label='head rotation')
+        ax.plot(list_head_elevation, label='head elevation')
+        ax.plot(list_head_roll, label='head roll')
+        ax.plot(list_face_distance, label='face distance')
     ax.legend()
     plt.show()
 

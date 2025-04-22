@@ -6,12 +6,14 @@ from torch.utils.data import DataLoader
 import torch
 from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import DistributedSampler
+
+
 writer = SummaryWriter("runs/gcc")
 
 
 class Training:
 
-    def __init__(self, model, loss_fn, optimiser, dataset, batch_size, ratio, device, filename, num_workers):
+    def __init__(self, model, loss_fn, optimiser, dataset, batch_size, ratio, device, filename, num_workers, use_metadata=False):
 
         self.train_data_loader = None
         self.val_data_loader = None
@@ -20,6 +22,7 @@ class Training:
         self.optimiser = optimiser
         self.device = device
         self.filename = filename
+        self.use_metadata = use_metadata
 
         n_total = len(dataset)
         n_train = int(n_total * ratio)
@@ -87,7 +90,10 @@ class Training:
             self.model.train()
             self.optimiser.zero_grad()
 
-            prediction = self.model(image_left, image_right, metadata)
+            if self.use_metadata:
+                prediction = self.model(image_left, image_right, metadata)
+            else:
+                prediction = self.model(image_left, image_right)
 
             # calculate loss
             loss = self.loss_fn(prediction, target)

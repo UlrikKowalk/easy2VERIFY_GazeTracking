@@ -8,6 +8,7 @@ import yaml
 from GazeData import GazeData
 from Timer import Timer
 from easyCNN_01 import easyCNN_01
+from easyCNN_02 import easyCNN_02
 from Training import Training
 
 # writer = SummaryWriter("runs/gcc")
@@ -58,7 +59,10 @@ if __name__ == '__main__':
 
             dataset = GazeData(directory=training_parameters['dataset'], device=device)
 
-            dnn = easyCNN_01()
+            if training_parameters['network'] == 'easyCNN_01':
+                dnn = easyCNN_01(use_metadata=training_parameters['use_metadata'])
+            elif training_parameters['network'] == 'easyCNN_02':
+                dnn = easyCNN_02()
 
             optimiser = torch.optim.Adam(dnn.parameters(), lr=configuration['LEARNING_RATE'])
 
@@ -80,7 +84,8 @@ if __name__ == '__main__':
                                ratio=configuration['RATIO'],
                                device=device,
                                filename=trained_net,
-                               num_workers=configuration['NUM_WORKERS'])
+                               num_workers=configuration['NUM_WORKERS'],
+                               use_metadata=training_parameters['use_metadata'])
 
             with Timer("Training online"):
                 # train model

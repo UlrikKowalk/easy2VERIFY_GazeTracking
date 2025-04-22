@@ -7,8 +7,10 @@ LATENT_CHANNELS = 16
 
 class easyCNN_01(nn.Module):
 
-    def __init__(self):
+    def __init__(self, use_metadata):
         super().__init__()
+
+        self.use_metadata = use_metadata
 
         self.norm = nn.GroupNorm(num_groups=1, num_channels=2, affine=False)
 
@@ -76,23 +78,22 @@ class easyCNN_01(nn.Module):
             in_features=128, out_features=1
         )
 
-        # self.FiLM0 = nn.Sequential(
-        #     nn.Linear(in_features=4, out_features=2*128),
-        #     nn.Dropout(p=0.5),
-        #     nn.Tanh()
-        # )
-        #
-        # self.FiLM1 = nn.Sequential(
-        #     nn.Linear(in_features=2*128, out_features=128),
-        #     nn.Dropout(p=0.5),
-        #     nn.Tanh()
-        # )
-        #
-        # self.FiLM2 = nn.Sequential(
-        #     nn.Linear(in_features=128, out_features=2*128),
-        #     nn.Dropout(p=0.5),
-        #     nn.Tanh()
-        # )
+        if self.use_metadata:
+            self.FiLM0 = nn.Sequential(
+                nn.Linear(in_features=4, out_features=2*128),
+                nn.Dropout(p=0.5),
+                nn.Tanh()
+            )
+            self.FiLM1 = nn.Sequential(
+                nn.Linear(in_features=2*128, out_features=128),
+                nn.Dropout(p=0.5),
+                nn.Tanh()
+            )
+            self.FiLM2 = nn.Sequential(
+                nn.Linear(in_features=128, out_features=2*128),
+                nn.Dropout(p=0.5),
+                nn.Tanh()
+            )
 
         self.GRU = nn.GRU(input_size=128, hidden_size=128,
                num_layers=3, batch_first=True,
@@ -125,28 +126,23 @@ class easyCNN_01(nn.Module):
 
         # Neural Net
         x = self.conv0(x)
-        # print(x.shape)
         x = self.conv1(x)
-        # print(x.shape)
         x = self.conv2(x)
-        # print(x.shape)
         x = self.conv3(x)
 
         x = self.flatten0(x)
-        # print(x.shape)
-        # x = torch.cat((x, metadata), dim=-1)
 
         x = self.linear0(x)
 
-        # calculate FiLM layers
-        # m = self.FiLM0(metadata)
-        # m = self.FiLM1(m)
-        # m = self.FiLM2(m)
-        # alpha = m[:, :128]
-        # beta = m[:, 128:]
-
-        # conduct FiLM
-        # x = alpha * x + beta
+        if self.use_metadata:
+            # calculate FiLM layers
+            m = self.FiLM0(metadata)
+            m = self.FiLM1(m)
+            m = self.FiLM2(m)
+            alpha = m[:, :128]
+            beta = m[:, 128:]
+            # conduct FiLM
+            x = alpha * x + beta
 
         x = self.linear1(x)
         x = self.linear2(x)

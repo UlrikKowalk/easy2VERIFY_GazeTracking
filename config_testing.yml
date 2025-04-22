@@ -4,8 +4,9 @@ BATCH_SIZE: 1
 NUM_WORKERS: 1
 
 simulation_parameters:
-  network: easyCNN
-  model: Trained/easyCNN_01.pth
+  network: easyCNN_01
+  model: Trained/easyCNN_01_no_metadata.pth
   base_dir: ''
-  dataset: '../easy2VERIFY_Dataset/f0426dc7-5ba0-4aa9-8467-6d81444812b1'
+  dataset: '../easy2VERIFY_Dataset/85717a6b-5301-42c0-9265-c4ac04485bbb'
+  use_metadata: False
   
