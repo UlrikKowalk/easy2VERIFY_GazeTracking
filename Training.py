@@ -122,7 +122,10 @@ class Training:
             self.model.eval()
             with torch.no_grad():
                 # evaluate
-                prediction = self.model(image_left, image_right, metadata)
+                if self.use_metadata:
+                    prediction = self.model(image_left, image_right, metadata)
+                else:
+                    prediction = self.model(image_left, image_right)
                 # calculate loss
                 loss = self.loss_fn(prediction, target)
 
