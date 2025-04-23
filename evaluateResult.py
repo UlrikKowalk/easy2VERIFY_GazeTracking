@@ -3,22 +3,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 from filterpy.kalman import KalmanFilter
 from filterpy.common import Q_discrete_white_noise
-
 from apply_regression import apply_regression
 
 df = pd.read_csv('easyTest.csv')
 list_targets = np.array(df['Target'])
 list_predictions = np.array(df['Prediction'])
-
-p = np.polyfit(list_predictions, list_targets, 5, rcond=None, full=False, w=None, cov=False)
-print(p)
-
-list_eq = p[0]*list_predictions**5 + p[1]*list_predictions**4 + p[2]*list_predictions**3 + p[3]*list_predictions**2 + p[4]*list_predictions + p[5]
-# list_eq = apply_regression(list_predictions)
-
-# list_predictions = np.convolve(list_predictions, [0.25, 0.5, 0.25], mode='same') #np.ones(3)/3
+list_eq = apply_regression(list_predictions)
 list_filtered = []
 
+# p = np.polyfit(list_predictions, list_targets, 3)
+# print(p)
 
 kalman = KalmanFilter (dim_x=2, dim_z=1)
 kalman.F = np.array([[1.,1.],[0.,1.]])
@@ -63,7 +57,7 @@ print('EQ, Kalman filtered:', 1000 * np.std(np.array(list_eq_filtered) - np.arra
 plt.plot(combine[:, 0], combine[:, 1], label='prediction')
 plt.plot(combine[:, 0], combine[:, 2], label='prediction, EQ')
 plt.legend()
-plt.plot([-0.25, 0.25],[-0.25, 0.25], 'r--')
+plt.plot([-0.125, 0.125],[-0.125, 0.125], 'r--')
 
 # plt.plot(list_predictions, ':')
 # plt.plot(list_filtered)

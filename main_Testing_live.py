@@ -2,7 +2,8 @@ import time
 import yaml
 import torch
 
-from easyCNN_01 import easyCNN_01
+from apply_regression import apply_regression
+from easyCNN_02 import easyCNN_02
 from Core.VideoSourceMulti import VideoSourceMulti
 from Core.FaceMapping import FaceMapping
 import cv2
@@ -187,7 +188,7 @@ class GazeLive(QtWidgets.QMainWindow):
         # load model and push it to device
         map_location = torch.device(self.device)
         sd = torch.load(trained_net, map_location=map_location, weights_only=True)
-        self.dnn = easyCNN_01()
+        self.dnn = easyCNN_02()
         self.dnn.load_state_dict(sd)
         self.dnn.to(self.device)
 
@@ -325,9 +326,10 @@ class GazeLive(QtWidgets.QMainWindow):
                 metadata = torch.unsqueeze(metadata, dim=0)
 
                 # result should (!) be -45°...+45° in radian
-                result = self.dnn.forward(im_left, im_right, metadata)
-                result *= torch.pi
-                result *= 2.0
+                # result = 2.0 * self.dnn.forward(im_left, im_right, metadata)
+                result = self.dnn.forward(im_left, im_right)
+                result = apply_regression(result[0][0].cpu().detach().numpy())
+                # result *= 2*torch.pi
 
                 self.kalman.predict()
                 self.kalman.update(result)

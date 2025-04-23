@@ -29,7 +29,6 @@ simulation_parameters = configuration['simulation_parameters']
 simulation_parameters['base_dir'] = os.getcwd()
 
 
-
 def boolean_string(s):
     if s not in {'False', 'True'}:
         raise ValueError('Not a valid boolean string')
@@ -63,7 +62,7 @@ if __name__ == '__main__':
     print(f"Using device '{device}'.")
 
     dataset = GazeData(directory=simulation_parameters["dataset"], device=device)
-    # dataset.set_length(1000)
+    dataset.set_length(1000)
 
     if simulation_parameters['network'] == 'easyCNN_01':
         dnn = easyCNN_01(use_metadata=simulation_parameters['use_metadata'])
@@ -119,9 +118,9 @@ if __name__ == '__main__':
         metadata = metadata.to(device)
 
         if simulation_parameters['use_metadata']:
-            predicted = 2 * dnn.forward(image_left, image_right, metadata)
+            predicted = dnn.forward(image_left, image_right, metadata)
         else:
-            predicted = 2 * dnn.forward(image_left, image_right)
+            predicted = dnn.forward(image_left, image_right)
 
         eq = apply_regression(predicted.cpu().detach().numpy()[0][0])
 
@@ -131,7 +130,7 @@ if __name__ == '__main__':
         list_predictions.append(predicted.cpu().detach().numpy()[0][0])
         list_predictions_filtered.append(kalman.x[0])
         list_eq.append(eq)
-        list_targets.append(2*target[0].cpu().detach().numpy())
+        list_targets.append(target[0].cpu().detach().numpy())
         list_head_rotation.append(metadata[0, 0].cpu().detach().numpy())
         list_head_elevation.append(metadata[0, 1].cpu().detach().numpy())
         list_head_roll.append(metadata[0, 2].cpu().detach().numpy())
