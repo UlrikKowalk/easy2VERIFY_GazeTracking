@@ -12,6 +12,7 @@ from matplotlib import pyplot as plt
 from torch.utils.data import DataLoader
 from filterpy.kalman import KalmanFilter
 from filterpy.common import Q_discrete_white_noise
+from apply_regression import apply_regression
 
 import Core.Evaluation as Evaluation
 from GazeData import GazeData
@@ -68,6 +69,9 @@ if __name__ == '__main__':
         dnn = easyCNN_01(use_metadata=simulation_parameters['use_metadata'])
     elif simulation_parameters['network'] == 'easyCNN_02':
         dnn = easyCNN_02()
+    else:
+        dnn = None
+        raise ('Unknown network configuration: ', simulation_parameters['network'])
 
     # load model and push it to device
     map_location = torch.device(device)
@@ -79,23 +83,13 @@ if __name__ == '__main__':
     kalman.F = np.array([[1., 1.], [0., 1.]])
     kalman.H = np.array([[1., 0.]])
     kalman.P *= 10
-    kalman.R = 50
+    kalman.R = 5
     kalman.Q = Q_discrete_white_noise(dim=2, dt=1 / 30, var=0.5)
     kalman.x = np.array([0, 0.])
 
-    # draw mask to focus on eye -> dimensions are known
-    # width = 60
-    # height = 60
-    # center = [30, 30]
-    # radius = 30
-    # mask = np.zeros(shape=(height, width), dtype=np.uint8)
-    # for row in range(height):
-    #     for col in range(width):
-    #         if np.sqrt((center[0] - row) ** 2 + (center[1] - col) ** 2) <= radius:
-    #             mask[row, col] = 1.0
-
     list_predictions = []
     list_predictions_filtered = []
+    list_eq = []
     list_targets = []
     list_head_rotation = []
     list_head_elevation = []
@@ -124,12 +118,19 @@ if __name__ == '__main__':
         # load metadata to inference device (cpu/cuda)
         metadata = metadata.to(device)
 
-        predicted = 2*dnn.forward(image_left, image_right, metadata)
+        if simulation_parameters['use_metadata']:
+            predicted = 2 * dnn.forward(image_left, image_right, metadata)
+        else:
+            predicted = 2 * dnn.forward(image_left, image_right)
+
+        eq = apply_regression(predicted.cpu().detach().numpy()[0][0])
+
         kalman.predict()
-        kalman.update(predicted.cpu().detach().numpy()[0])
+        kalman.update(eq)
 
         list_predictions.append(predicted.cpu().detach().numpy()[0][0])
         list_predictions_filtered.append(kalman.x[0])
+        list_eq.append(eq)
         list_targets.append(2*target[0].cpu().detach().numpy())
         list_head_rotation.append(metadata[0, 0].cpu().detach().numpy())
         list_head_elevation.append(metadata[0, 1].cpu().detach().numpy())
@@ -152,12 +153,14 @@ if __name__ == '__main__':
             path_or_buf="easyTest.csv",
             index=False)
 
-    print('\nError:', 1000*np.std(np.array(list_predictions) - np.array(list_targets)))
-    print('Kalman filtered:', 1000 * np.std(np.array(list_predictions_filtered) - np.array(list_targets)))
+    print('\nPredictions:', 1000*np.std(np.array(list_predictions) - np.array(list_targets)))
+    print('EQ:', 1000*np.std(np.array(list_eq) - np.array(list_targets)))
+    print('EQ, Kalman filtered:', 1000 * np.std(np.array(list_predictions_filtered) - np.array(list_targets)))
 
     fig, ax = plt.subplots(1, 1)
     ax.plot(list_predictions, label='prediction')
-    ax.plot(list_predictions_filtered, label='prediction (kalman)')
+    ax.plot(list_eq, label='eq')
+    ax.plot(list_predictions_filtered, label='eq (kalman)')
     ax.plot(list_targets, label='target')
     if simulation_parameters['use_metadata']:
         ax.plot(list_head_rotation, label='head rotation')
@@ -167,10 +170,4 @@ if __name__ == '__main__':
     ax.legend()
     plt.show()
 
-    # MAE_CNN = np.mean(list_error)
-    # acc_model = Evaluation.calculate_accuracy(df, simulation_parameters[
-    #     'num_classes'])
-    # print(f"DNN: MAE: {MAE_CNN} [{np.median(list_error)}], Accuracy: {acc_model}")
-    #
-    # Evaluation.plot_error(df=df, num_classes=dataset.get_num_classes())
     print("done.")

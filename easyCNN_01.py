@@ -109,9 +109,6 @@ class easyCNN_01(nn.Module):
         global_max = torch.max(torch.max(torch.max(x)))
         global_min = torch.min(torch.min(torch.min(x)))
 
-        # plt.imshow(x[0, 0, :, :].cpu().detach().numpy())
-        # plt.show()
-
         # normalisation [0,1]
         x -= global_min
         x /= (global_max - global_min)

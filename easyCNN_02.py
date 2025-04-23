@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 class EyeCNN(nn.Module):
@@ -26,6 +25,7 @@ class EyeCNN(nn.Module):
         self.fc = nn.Linear(128 * 7 * 7, 512)
 
     def forward(self, x):
+
         x = self.conv_layers(x)
         x = self.flatten(x)
         x = self.fc(x)
