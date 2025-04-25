@@ -54,7 +54,7 @@ class EyeCNN(nn.Module):
         self.spatial_attention = SpatialAttention()
 
         self.fc = nn.Sequential(
-            nn.Linear(64 * 5 * 5, 128),
+            nn.Linear(64 * 5 * 5, 256),
             nn.ReLU(),
         )
 

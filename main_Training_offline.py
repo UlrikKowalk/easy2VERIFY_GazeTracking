@@ -62,9 +62,9 @@ if __name__ == '__main__':
 
             if training_parameters['network'] == 'easyCNN_01':
                 dnn = easyCNN_01(use_metadata=training_parameters['use_metadata'])
-            elif training_parameters['network'] = 'easyCNN_02':
+            elif training_parameters['network'] == 'easyCNN_02':
                 dnn = easyCNN_02()
-            elif training_parameters['network'] = 'easyCNN_03':
+            elif training_parameters['network'] == 'easyCNN_03':
                 dnn = easyCNN_02()
             else:
                 dnn = None
