@@ -16,7 +16,9 @@ from apply_regression import apply_regression
 
 import Core.Evaluation as Evaluation
 from GazeData import GazeData
-from easyCNN_03 import easyCNN
+from easyCNN_01 import easyCNN_01
+from easyCNN_02 import easyCNN_02
+from easyCNN_03 import easyCNN_03
 from Core.Timer import Timer
 from random import Random
 
@@ -64,9 +66,11 @@ if __name__ == '__main__':
     dataset.set_length(1000)
 
     if simulation_parameters['network'] == 'easyCNN_01':
-        dnn = easyCNN(use_metadata=simulation_parameters['use_metadata'])
-    elif simulation_parameters['network'] in ['easyCNN_02', 'easyCNN_03']:
-        dnn = easyCNN()
+        dnn = easyCNN_01(use_metadata=simulation_parameters['use_metadata'])
+    elif simulation_parameters['network'] == 'easyCNN_02':
+        dnn = easyCNN_02()
+    elif simulation_parameters['network'] == 'easyCNN_03':
+        dnn = easyCNN_03()
     else:
         dnn = None
         raise ('Unknown network configuration: ', simulation_parameters['network'])

@@ -67,17 +67,17 @@ class EyeCNN(nn.Module):
         return x
 
 
-class easyCNN(nn.Module):
+class easyCNN_03(nn.Module):
     def __init__(self):
-        super(easyCNN, self).__init__()
+        super(easyCNN_03, self).__init__()
 
         self.left_eye_net = EyeCNN()
         self.right_eye_net = EyeCNN()
 
         self.combined_fc = nn.Sequential(
-            nn.Linear(128 * 2, 128),
+            nn.Linear(256 * 2, 256),
             nn.ReLU(),
-            nn.Linear(128, 1)  # Predicts (x, y) gaze coordinates
+            nn.Linear(256, 1)  # Predicts (x, y) gaze coordinates
         )
 
     def forward(self, left_eye, right_eye):
