@@ -32,9 +32,9 @@ class EyeCNN(nn.Module):
         return x
 
 
-class easyCNN_02(nn.Module):
+class easyCNN(nn.Module):
     def __init__(self):
-        super(easyCNN_02, self).__init__()
+        super(easyCNN, self).__init__()
         self.left_eye_net = EyeCNN()
         self.right_eye_net = EyeCNN()
 

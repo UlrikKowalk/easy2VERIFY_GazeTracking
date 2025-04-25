@@ -5,7 +5,7 @@ import torch
 
 LATENT_CHANNELS = 16
 
-class easyCNN_01(nn.Module):
+class easyCNN(nn.Module):
 
     def __init__(self, use_metadata):
         super().__init__()
