@@ -5,8 +5,8 @@ NUM_WORKERS: 1
 
 simulation_parameters:
   network: easyCNN_03
-  model: Trained/easyCNN_03.pth
+  model: Trained/easyCNN_03_metadata.pth
   base_dir: ''
   dataset: '../easy2VERIFY_Dataset/f0426dc7-5ba0-4aa9-8467-6d81444812b1'
-  use_metadata: False
+  use_metadata: True
   

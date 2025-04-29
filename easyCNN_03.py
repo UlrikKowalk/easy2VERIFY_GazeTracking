@@ -68,23 +68,33 @@ class EyeCNN(nn.Module):
 
 
 class easyCNN_03(nn.Module):
-    def __init__(self):
+    def __init__(self, use_metadata):
         super(easyCNN_03, self).__init__()
+        self.use_metadata = use_metadata
 
         self.left_eye_net = EyeCNN()
         self.right_eye_net = EyeCNN()
 
+        # if self.use_metadata:
+        #     md = 3
+        # else:
+        #     md = 0
+        md = 3 if self.use_metadata else 0
+
         # Expecting 3 additional inputs for head pose (yaw, pitch, roll)
         self.combined_fc = nn.Sequential(
-            nn.Linear(256 * 2 + 3, 128),
+            nn.Linear(256 * 2 + md, 128),
             nn.ReLU(),
             nn.Linear(128, 1)  # only lateral movement
         )
 
-    def forward(self, left_eye, right_eye, head_pose):  # <-- new input
+    def forward(self, left_eye, right_eye, head_pose=None):  # <-- new input
         left_feat = self.left_eye_net(left_eye)
         right_feat = self.right_eye_net(right_eye)
 
-        combined = torch.cat((left_feat, right_feat, head_pose), dim=1)  # <-- concatenate head pose
+        if self.use_metadata:
+            combined = torch.cat((left_feat, right_feat, head_pose), dim=1)  # <-- concatenate head pose
+        else:
+            combined = torch.cat((left_feat, right_feat), dim=1)
         output = self.combined_fc(combined)
         return output

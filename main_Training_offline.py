@@ -10,6 +10,7 @@ from Timer import Timer
 from easyCNN_01 import easyCNN_01
 from easyCNN_02 import easyCNN_02
 from easyCNN_03 import easyCNN_03
+from easyCNN_04 import easyCNN_04
 from Training import Training
 
 # writer = SummaryWriter("runs/gcc")
@@ -65,7 +66,9 @@ if __name__ == '__main__':
             elif training_parameters['network'] == 'easyCNN_02':
                 dnn = easyCNN_02()
             elif training_parameters['network'] == 'easyCNN_03':
-                dnn = easyCNN_03()
+                dnn = easyCNN_03(use_metadata=training_parameters["use_metadata"])
+            elif training_parameters['network'] == 'easyCNN_04':
+                dnn = easyCNN_04()
             else:
                 dnn = None
                 raise ('Unknown network configuration: ', training_parameters['network'])

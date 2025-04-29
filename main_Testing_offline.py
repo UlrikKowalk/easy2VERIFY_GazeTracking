@@ -70,7 +70,7 @@ if __name__ == '__main__':
     elif simulation_parameters['network'] == 'easyCNN_02':
         dnn = easyCNN_02()
     elif simulation_parameters['network'] == 'easyCNN_03':
-        dnn = easyCNN_03()
+        dnn = easyCNN_03(use_metadata=simulation_parameters['use_metadata'])
     else:
         dnn = None
         raise ('Unknown network configuration: ', simulation_parameters['network'])
@@ -96,7 +96,7 @@ if __name__ == '__main__':
     list_head_rotation = []
     list_head_elevation = []
     list_head_roll = []
-    list_face_distance = []
+    # list_face_distance = []
     list_error = []
 
     test_data_loader = DataLoader(dataset=dataset,
@@ -137,7 +137,7 @@ if __name__ == '__main__':
         list_head_rotation.append(metadata[0, 0].cpu().detach().numpy())
         list_head_elevation.append(metadata[0, 1].cpu().detach().numpy())
         list_head_roll.append(metadata[0, 2].cpu().detach().numpy())
-        list_face_distance.append(metadata[0, 3].cpu().detach().numpy())
+        # list_face_distance.append(metadata[0, 3].cpu().detach().numpy())
 
         sys.stdout.write("\r{0}>".format("=" * round(50*idx/len(dataset))))
         sys.stdout.flush()
@@ -168,7 +168,7 @@ if __name__ == '__main__':
         ax.plot(list_head_rotation, label='head rotation')
         ax.plot(list_head_elevation, label='head elevation')
         ax.plot(list_head_roll, label='head roll')
-        ax.plot(list_face_distance, label='face distance')
+        # ax.plot(list_face_distance, label='face distance')
     ax.legend()
     plt.show()
 
