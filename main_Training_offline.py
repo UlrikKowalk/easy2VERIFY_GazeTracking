@@ -65,7 +65,7 @@ if __name__ == '__main__':
             elif training_parameters['network'] == 'easyCNN_02':
                 dnn = easyCNN_02()
             elif training_parameters['network'] == 'easyCNN_03':
-                dnn = easyCNN_02()
+                dnn = easyCNN_03()
             else:
                 dnn = None
                 raise ('Unknown network configuration: ', training_parameters['network'])

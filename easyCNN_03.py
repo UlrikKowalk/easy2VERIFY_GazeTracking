@@ -74,16 +74,17 @@ class easyCNN_03(nn.Module):
         self.left_eye_net = EyeCNN()
         self.right_eye_net = EyeCNN()
 
+        # Expecting 3 additional inputs for head pose (yaw, pitch, roll)
         self.combined_fc = nn.Sequential(
-            nn.Linear(256 * 2, 256),
+            nn.Linear(256 * 2 + 3, 128),
             nn.ReLU(),
-            nn.Linear(256, 1)  # Predicts (x, y) gaze coordinates
+            nn.Linear(128, 1)  # only lateral movement
         )
 
-    def forward(self, left_eye, right_eye):
+    def forward(self, left_eye, right_eye, head_pose):  # <-- new input
         left_feat = self.left_eye_net(left_eye)
         right_feat = self.right_eye_net(right_eye)
 
-        combined = torch.cat((left_feat, right_feat), dim=1)
+        combined = torch.cat((left_feat, right_feat, head_pose), dim=1)  # <-- concatenate head pose
         output = self.combined_fc(combined)
         return output

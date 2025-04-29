@@ -11,6 +11,6 @@ RATIO: 0.8
 training_parameters:
   seed: 42
   network: easyCNN_03
-  model: 'easyCNN_03.pth'
+  model: 'easyCNN_03_metadata.pth'
   dataset: '../easy2VERIFY_Dataset/11bcf00e-3336-46c2-9f1d-c9c8f11e05b3'
-  use_metadata: False
+  use_metadata: True

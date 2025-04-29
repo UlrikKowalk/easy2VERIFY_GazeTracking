@@ -7,6 +7,6 @@ simulation_parameters:
   network: easyCNN_03
   model: Trained/easyCNN_03.pth
   base_dir: ''
-  dataset: '../easy2VERIFY_Dataset/03d59f9d-fe80-4e86-b29c-ec015c9619a2'
+  dataset: '../easy2VERIFY_Dataset/f0426dc7-5ba0-4aa9-8467-6d81444812b1'
   use_metadata: False
   
