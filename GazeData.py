@@ -2,6 +2,7 @@
 from pathlib import Path
 import numpy as np
 import torch
+from attr import dataclass
 from torch.utils.data import Dataset
 import pandas as pd
 import cv2
@@ -10,11 +11,12 @@ import matplotlib.pyplot as plt
 
 class GazeData(Dataset):
 
-    def __init__(self, directory, device):
+    def __init__(self, directory, device, use_augmentation=False):
 
         self.internal_index = 0
         self.directory = directory
         self.device = device
+        self.use_augmentation = use_augmentation
         self.dataframe = pd.DataFrame(pd.DataFrame({
                         'directory': [],
                         'filename': [],
@@ -31,7 +33,10 @@ class GazeData(Dataset):
             tmp_dataframe['directory'] = [path.parent] * num_elements
             self.dataframe = self.dataframe._append(tmp_dataframe, ignore_index=True)
 
-        self.length = len(self.dataframe)
+        if self.use_augmentation:
+            self.length = 2*len(self.dataframe) # 2 times because horizontal mirroring for augmentation
+        else:
+            self.length = len(self.dataframe)
         self.width = 100
         self.height = 100
 
@@ -49,12 +54,14 @@ class GazeData(Dataset):
         return self.length
 
     def set_length(self, length):
-        self.length = length
+        self.length = np.min([length, self.length])
 
     def __getitem__(self, index):
 
-        index = self.internal_index
-        self.internal_index += 1
+        if self.use_augmentation:
+            index = np.remainder(self.internal_index, int(self.length/2))
+        else:
+            index = self.internal_index
 
         directory = self.dataframe['directory'][index]
         filename = self.dataframe['filename'][index]
@@ -72,6 +79,14 @@ class GazeData(Dataset):
         image_left = image_left[20:-20, 20:-20]
         image_right = image_right[20:-20, 20:-20]
 
+        # second half of dataset (copy of first half) is augmented
+        if self.use_augmentation and self.internal_index > self.length/2:
+            head_rotation *= -1.0
+            head_elevation *= -1.0
+            head_roll *= -1.0
+            image_left = np.flip(image_left, axis=1)
+            image_right = np.flip(image_right, axis=1)
+
         head_rotation = head_rotation / 180
         head_elevation = head_elevation / 180
         head_roll = head_roll / 180
@@ -81,5 +96,7 @@ class GazeData(Dataset):
 
         #condition target values to be on interval [-1,1]
         target = 0.5*torch.tensor(target / torch.pi, dtype=torch.float32)
+
+        self.internal_index += 1
 
         return image_left, image_right, target, head_position

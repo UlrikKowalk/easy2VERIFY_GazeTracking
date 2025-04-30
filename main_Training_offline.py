@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
         if configuration['is_training']:
 
-            dataset = GazeData(directory=training_parameters['dataset'], device=device)
+            dataset = GazeData(directory=training_parameters['dataset'], device=device, use_augmentation=True)
 
             if training_parameters['network'] == 'easyCNN_01':
                 dnn = easyCNN_01(use_metadata=training_parameters['use_metadata'])

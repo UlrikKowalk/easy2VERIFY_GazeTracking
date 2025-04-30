@@ -19,6 +19,7 @@ from GazeData import GazeData
 from easyCNN_01 import easyCNN_01
 from easyCNN_02 import easyCNN_02
 from easyCNN_03 import easyCNN_03
+from easyCNN_04 import easyCNN_04
 from Core.Timer import Timer
 from random import Random
 
@@ -62,7 +63,7 @@ if __name__ == '__main__':
     trained_net = f'{simulation_parameters["base_dir"]}/{simulation_parameters["model"]}'
     print(f"Using device '{device}'.")
 
-    dataset = GazeData(directory=simulation_parameters["dataset"], device=device)
+    dataset = GazeData(directory=simulation_parameters["dataset"], device=device, use_augmentation=False)
     dataset.set_length(1000)
 
     if simulation_parameters['network'] == 'easyCNN_01':
@@ -71,6 +72,8 @@ if __name__ == '__main__':
         dnn = easyCNN_02()
     elif simulation_parameters['network'] == 'easyCNN_03':
         dnn = easyCNN_03(use_metadata=simulation_parameters['use_metadata'])
+    elif simulation_parameters['network'] == 'easyCNN_04':
+        dnn = easyCNN_04()
     else:
         dnn = None
         raise ('Unknown network configuration: ', simulation_parameters['network'])
@@ -111,6 +114,8 @@ if __name__ == '__main__':
 
     for image_left, image_right, target, metadata in test_data_loader:
 
+        image_left = torch.unsqueeze(image_left, dim=0)
+        image_right = torch.unsqueeze(image_right, dim=0)
         image_left = torch.unsqueeze(image_left, dim=0)
         image_right = torch.unsqueeze(image_right, dim=0)
 
