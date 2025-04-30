@@ -63,6 +63,8 @@ class GazeData(Dataset):
         else:
             index = self.internal_index
 
+        self.internal_index += 1
+
         directory = self.dataframe['directory'][index]
         filename = self.dataframe['filename'][index]
         image = cv2.imread(f'{directory}/{filename}', cv2.IMREAD_GRAYSCALE).astype(np.float32)
@@ -84,8 +86,8 @@ class GazeData(Dataset):
             head_rotation *= -1.0
             head_elevation *= -1.0
             head_roll *= -1.0
-            image_left = np.flip(image_left, axis=1)
-            image_right = np.flip(image_right, axis=1)
+            image_left = np.flip(image_left, axis=1).copy()
+            image_right = np.flip(image_right, axis=1).copy()
 
         head_rotation = head_rotation / 180
         head_elevation = head_elevation / 180
@@ -96,7 +98,7 @@ class GazeData(Dataset):
 
         #condition target values to be on interval [-1,1]
         target = 0.5*torch.tensor(target / torch.pi, dtype=torch.float32)
-
-        self.internal_index += 1
+        if self.use_augmentation:
+            target *= -1.0
 
         return image_left, image_right, target, head_position
