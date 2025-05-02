@@ -81,6 +81,9 @@ class GazeData(Dataset):
         image_left = image_left[20:-20, 20:-20]
         image_right = image_right[20:-20, 20:-20]
 
+        # condition target values to be on interval [-1,1]
+        target = 0.5 * torch.tensor(target / torch.pi, dtype=torch.float32)
+
         # second half of dataset (copy of first half) is augmented
         if self.use_augmentation and self.internal_index > self.length/2:
             head_rotation *= -1.0
@@ -88,6 +91,7 @@ class GazeData(Dataset):
             head_roll *= -1.0
             image_left = np.flip(image_left, axis=1).copy()
             image_right = np.flip(image_right, axis=1).copy()
+            target *= -1.0
 
         head_rotation = head_rotation / 180
         head_elevation = head_elevation / 180
@@ -95,10 +99,5 @@ class GazeData(Dataset):
         face_distance /= 300
 
         head_position = torch.tensor([head_rotation, head_elevation, head_roll], dtype=torch.float32)
-
-        #condition target values to be on interval [-1,1]
-        target = 0.5*torch.tensor(target / torch.pi, dtype=torch.float32)
-        if self.use_augmentation:
-            target *= -1.0
 
         return image_left, image_right, target, head_position
